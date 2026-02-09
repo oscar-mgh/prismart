@@ -10,7 +10,7 @@ export class CartItemDocument {
   quantity: number;
 }
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'carts' })
 export class CartDocument extends Document {
   @Prop({ required: true, unique: true, index: true })
   userId: string;
