@@ -13,7 +13,7 @@ export abstract class ProductRepositoryPort {
 
   abstract saveMany(products: Product[]): Promise<void>;
 
-  abstract findAll(storeId: string, page: number, limit: number): Promise<Page<Product>>;
+  abstract findAll(page: number, limit: number): Promise<Page<Product>>;
 
   abstract findByCriteria(criteria: ProductCriteria): Promise<Product[]>;
 

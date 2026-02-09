@@ -34,7 +34,6 @@ import { ProductResponseDto } from '../http/dtos/product-response.dto';
 import { ProductMapper } from '../persistence/mappers/product.mapper';
 
 @Controller('products')
-@UseGuards(JwtAuthGuard)
 export class ProductController {
   constructor(
     private readonly findAllProductsUseCase: FindAllProductsUseCase,
@@ -47,11 +46,8 @@ export class ProductController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(
-    @Query() query: PaginationQueryDto,
-    @GetUser('storeId') storeId: string,
-  ): Promise<PaginatedResult<ProductResponseDto>> {
-    const { page, totalElements, totalPages, data } = await this.findAllProductsUseCase.execute(query, storeId);
+  async findAll(@Query() query: PaginationQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
+    const { page, totalElements, totalPages, data } = await this.findAllProductsUseCase.execute(query);
 
     return {
       page,
@@ -62,6 +58,7 @@ export class ProductController {
   }
 
   @Get('criteria')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async findByCriteria(@Query() query: CriteriaQueryDto): Promise<ProductResponseDto[]> {
     const products = await this.findByCriteriaUseCase.execute(query);
@@ -69,6 +66,7 @@ export class ProductController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ValidateObjectIdPipe) id: string): Promise<ProductResponseDto> {
     const product = await this.findProductByIdUseCase.execute({ id });
@@ -76,7 +74,7 @@ export class ProductController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateProductDto, @GetUser() user: User): Promise<ProductResponseDto> {
@@ -86,7 +84,7 @@ export class ProductController {
   }
 
   @Patch('apply-discount')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
   async applyDiscount(@Body() dto: ApplyDiscountDto): Promise<ApplyDiscountResponseDto> {
@@ -112,7 +110,7 @@ export class ProductController {
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', ValidateObjectIdPipe) id: string): Promise<void> {

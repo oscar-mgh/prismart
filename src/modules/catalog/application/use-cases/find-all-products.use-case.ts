@@ -8,9 +8,9 @@ import { FindAllProductsQuery } from './queries/find-all-products.query';
 export class FindAllProductsUseCase {
   constructor(private readonly productRepository: ProductRepositoryPort) {}
 
-  async execute(query: FindAllProductsQuery, storeId: string): Promise<Page<Product>> {
+  async execute(query: FindAllProductsQuery): Promise<Page<Product>> {
     const { page, limit } = query;
-    const { totalElements, data } = await this.productRepository.findAll(storeId, page, limit);
+    const { totalElements, data } = await this.productRepository.findAll(page, limit);
     const totalPages = Math.ceil(totalElements / limit);
 
     return {

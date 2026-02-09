@@ -63,9 +63,9 @@ export class MongooseProductRepository implements ProductRepositoryPort {
     return doc ? ProductMapper.toDomain(doc) : null;
   }
 
-  async findAll(storeId: string, page: number, limit: number): Promise<Page<Product>> {
+  async findAll(page: number, limit: number): Promise<Page<Product>> {
     const skip = (page - 1) * limit;
-    const filter = { storeId, active: true };
+    const filter = { active: true };
 
     const [docs, totalElements] = await Promise.all([
       this.productModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
