@@ -11,6 +11,7 @@ export interface ProductPersistenceDto {
   readonly discount?: {
     readonly code: string;
     readonly percentage: number;
+    readonly isExpired: boolean;
     readonly expirationDate: Date;
   } | null;
 }

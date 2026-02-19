@@ -1,19 +1,23 @@
+import { Transform, Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CriteriaQueryDto {
-  @IsArray()
   @IsOptional()
+  @IsArray()
   ids?: string[];
 
-  @IsArray()
   @IsOptional()
+  @Type(() => String)
+  @IsArray()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   skus?: string[];
 
-  @IsString()
   @IsOptional()
+  @IsString()
   category?: string;
 
-  @IsBoolean()
   @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true' || value === true)
   active?: boolean;
 }

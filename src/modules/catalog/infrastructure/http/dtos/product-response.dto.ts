@@ -44,6 +44,7 @@ export class ProductResponseDto {
   @ValidateNested()
   discount?: {
     code: string;
+    isExpired: boolean;
     percentage: number;
     expiresAt: Date;
   };

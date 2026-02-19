@@ -43,6 +43,7 @@ export class ProductMapper {
         ? {
             code: discount.getCode(),
             percentage: discount.getPercentage(),
+            isExpired: discount.isExpired(),
             expirationDate: discount.getExpirationDate(),
           }
         : null,
@@ -63,14 +64,14 @@ export class ProductMapper {
       finalPrice: finalPrice || product.getPrice(),
       stock: product.getStock(),
       category: product.getCategory(),
-      discount:
-        discount && !discount.isExpired()
-          ? {
-              code: discount.getCode(),
-              percentage: discount.getPercentage(),
-              expiresAt: discount.getExpirationDate(),
-            }
-          : undefined,
+      discount: discount
+        ? {
+            code: discount.getCode(),
+            percentage: discount.getPercentage(),
+            isExpired: discount.isExpired(),
+            expiresAt: discount.getExpirationDate(),
+          }
+        : null!,
     };
   }
 }

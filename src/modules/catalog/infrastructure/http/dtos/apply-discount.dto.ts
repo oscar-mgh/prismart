@@ -1,4 +1,3 @@
-import { Type } from 'class-transformer';
 import { IsArray, IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class ApplyDiscountDto {
@@ -6,6 +5,11 @@ export class ApplyDiscountDto {
   @IsArray()
   @IsString({ each: true })
   ids?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skus?: string[];
 
   @IsOptional()
   @IsString()
@@ -24,7 +28,6 @@ export class ApplyDiscountDto {
   percentage: number;
 
   @IsDateString()
-  @Type(() => Date)
   @IsNotEmpty()
   expirationDate: string;
 }

@@ -88,11 +88,12 @@ export class ProductController {
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
   async applyDiscount(@Body() dto: ApplyDiscountDto): Promise<ApplyDiscountResponseDto> {
-    const { ids, category, code, percentage, expirationDate } = dto;
+    const { ids, skus, category, code, percentage, expirationDate } = dto;
     const command: ApplyDiscountCommand = {
       criteria: {
         ids,
         category,
+        skus,
       },
       discountData: {
         code,
