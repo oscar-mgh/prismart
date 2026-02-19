@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { ValidateObjectIdPipe } from 'src/modules/shared/infrastructure/pipes/validate-object-id.pipe';
 import { DisableUserUseCase } from '../../application/use-cases/disable-user.use-case';
+import { EnableUserUseCase } from '../../application/use-cases/enable-user.use-case';
 import { LoginUseCase } from '../../application/use-cases/login-user.use-case';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { UserRole } from '../../domain/entities/user.entity';
@@ -17,6 +18,7 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly tokenService: TokenService,
     private readonly disableUserUseCase: DisableUserUseCase,
+    private readonly enableUserUseCase: EnableUserUseCase,
   ) {}
 
   @Post('register')
@@ -40,5 +42,12 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async disableUser(@Param('userId', ValidateObjectIdPipe) userId: string): Promise<void> {
     await this.disableUserUseCase.execute(userId);
+  }
+
+  @Patch('enable/:userId')
+  @Roles(UserRole.SUPER_ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async enableUser(@Param('userId', ValidateObjectIdPipe) userId: string): Promise<void> {
+    await this.enableUserUseCase.execute(userId);
   }
 }

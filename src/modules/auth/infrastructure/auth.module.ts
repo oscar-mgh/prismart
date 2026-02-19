@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { DisableUserUseCase } from '../application/use-cases/disable-user.use-case';
+import { EnableUserUseCase } from '../application/use-cases/enable-user.use-case';
 import { LoginUseCase } from '../application/use-cases/login-user.use-case';
 import { RegisterUserUseCase } from '../application/use-cases/register-user.use-case';
 import { PasswordHasherPort } from '../domain/ports/password-hasher.port';
@@ -31,6 +32,7 @@ import { BcryptHasher } from './security/bcrypt-hasher';
     RegisterUserUseCase,
     LoginUseCase,
     DisableUserUseCase,
+    EnableUserUseCase,
     {
       provide: UserRepositoryPort,
       useClass: MongooseUserRepository,
