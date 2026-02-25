@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
+import { EnsureSuperAdminUseCase } from '../application/use-cases/ensure-super-admin.use-case';
 import { DisableUserUseCase } from '../application/use-cases/disable-user.use-case';
 import { EnableUserUseCase } from '../application/use-cases/enable-user.use-case';
 import { LoginUseCase } from '../application/use-cases/login-user.use-case';
@@ -10,6 +11,7 @@ import { RegisterUserUseCase } from '../application/use-cases/register-user.use-
 import { PasswordHasherPort } from '../domain/ports/password-hasher.port';
 import { UserRepositoryPort } from '../domain/ports/user-repository.port';
 import { TokenService } from './auth/services/token.service';
+import { SuperAdminInitializerService } from './auth/services/super-admin-initializer.service';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { AuthController } from './controllers/auth.controller';
 import { UserDocument, UserSchema } from './persistence/entities/user.schema';
@@ -33,6 +35,8 @@ import { BcryptHasher } from './security/bcrypt-hasher';
     LoginUseCase,
     DisableUserUseCase,
     EnableUserUseCase,
+    EnsureSuperAdminUseCase,
+    SuperAdminInitializerService,
     {
       provide: UserRepositoryPort,
       useClass: MongooseUserRepository,
