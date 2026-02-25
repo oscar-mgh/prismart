@@ -10,7 +10,7 @@ export class UserDocument extends Document {
   @Prop({ required: true }) password: string;
   @Prop({ enum: UserRole, default: UserRole.CUSTOMER }) role: UserRole;
   @Prop({ default: true }) active: boolean;
-  @Prop({ required: true }) storeId: Types.ObjectId;
+  @Prop() storeId?: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserDocument);

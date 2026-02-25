@@ -7,6 +7,7 @@ import { EnsureSuperAdminUseCase } from '../application/use-cases/ensure-super-a
 import { DisableUserUseCase } from '../application/use-cases/disable-user.use-case';
 import { EnableUserUseCase } from '../application/use-cases/enable-user.use-case';
 import { LoginUseCase } from '../application/use-cases/login-user.use-case';
+import { PromoteUserToSalesAdminUseCase } from '../application/use-cases/promote-user-to-sales-admin.use-case';
 import { RegisterUserUseCase } from '../application/use-cases/register-user.use-case';
 import { PasswordHasherPort } from '../domain/ports/password-hasher.port';
 import { UserRepositoryPort } from '../domain/ports/user-repository.port';
@@ -33,6 +34,7 @@ import { BcryptHasher } from './security/bcrypt-hasher';
   providers: [
     RegisterUserUseCase,
     LoginUseCase,
+    PromoteUserToSalesAdminUseCase,
     DisableUserUseCase,
     EnableUserUseCase,
     EnsureSuperAdminUseCase,

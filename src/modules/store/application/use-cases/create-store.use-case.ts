@@ -19,8 +19,13 @@ export class CreateStoreUseCase {
       throw new NotFoundException('User not found');
     }
 
-    if (user.getStoreId()) {
-      throw new ConflictException('User already owns a store');
+    const existingStoreId = user.getStoreId();
+
+    if (existingStoreId) {
+      const existingStore = await this.storeRepository.findById(existingStoreId.toString());
+      if (existingStore) {
+        throw new ConflictException('User already owns a store');
+      }
     }
 
     const nameExists = await this.storeRepository.existsByName(command.name);
@@ -36,10 +41,14 @@ export class CreateStoreUseCase {
       country: command.address.country,
     });
 
-    const storeId = Id.create();
+    const storeId = existingStoreId ?? Id.create();
     const store = new Store(storeId, command.name, [new Id(userId)], address, true, new Date(), new Date());
 
-    user.assignStore(storeId);
+    if (!existingStoreId) {
+      user.assignStore(storeId);
+    } else if (user.getRole() !== UserRole.SALES_ADMIN) {
+      user.promoteToSalesAdmin();
+    }
 
     await this.storeRepository.save(store);
     await this.userRepository.save(user);

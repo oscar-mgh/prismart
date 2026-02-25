@@ -26,7 +26,7 @@ export class RegisterUserUseCase {
       hashedPassword,
       UserRole.CUSTOMER,
       true,
-      command.storeId ? Id.create(command.storeId) : undefined,
+      undefined,
     );
 
     await this.userRepository.save(newUser);

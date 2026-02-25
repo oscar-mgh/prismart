@@ -56,4 +56,11 @@ export class User {
     this.storeId = storeId;
     this.role = UserRole.SALES_ADMIN;
   }
+
+  public promoteToSalesAdmin(): void {
+    if (this.role === UserRole.SUPER_ADMIN) {
+      return;
+    }
+    this.role = UserRole.SALES_ADMIN;
+  }
 }

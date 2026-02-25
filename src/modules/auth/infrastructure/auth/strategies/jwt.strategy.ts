@@ -33,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       id: user.id.getValue(),
       email: user.getEmail().getValue(),
       role: user.getRole(),
-      storeId: user.storeId?.getValue() || '',
+      storeId: user.storeId?.getValue(),
     };
   }
 }
