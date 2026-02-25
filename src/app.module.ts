@@ -14,7 +14,7 @@ import { StoreModule } from './modules/store/infrastructure/store.module';
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI', 'mongodb://localhost:27017/bounded-mart'),
+        uri: configService.get<string>('MONGO_URI', 'mongodb://localhost:27017/prismart'),
       }),
       inject: [ConfigService],
     }),
