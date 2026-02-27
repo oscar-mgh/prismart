@@ -6,6 +6,7 @@ import { CartModule } from './modules/cart/infrastructure/cart.module';
 import { CatalogModule } from './modules/catalog/infrastructure/catalog.module';
 import { HealthModule } from './modules/health/health.module';
 import { OrderModule } from './modules/order/infrastructure/order.module';
+import { SeedModule } from './modules/seed/infrastructure/seed.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { StoreModule } from './modules/store/infrastructure/store.module';
 
@@ -24,6 +25,7 @@ import { StoreModule } from './modules/store/infrastructure/store.module';
     OrderModule,
     CartModule,
     StoreModule,
+    SeedModule,
     SharedModule,
   ],
   controllers: [],

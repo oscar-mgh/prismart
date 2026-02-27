@@ -1,98 +1,214 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## Prismart API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+An commerce platform (stores, catalog, cart and orders) built with NestJS, TypeScript and MongoDB (Hexagonal architecture).  
+It provides JWT-based authentication with roles (`CUSTOMER`, `SALES_ADMIN`, `SUPER_ADMIN`) and a promotion flow for turning a customer into a seller (`SALES_ADMIN`) with a system-managed `storeId`.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Quick Start (Development)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Requirements
 
-## Project setup
+- **Node.js** >= 18  
+- **npm** >= 9  
+- **MongoDB** running (local or remote)
+
+### Environment variables
+
+Create a `.env` file in the project root with at least:
 
 ```bash
-$ npm install
+MONGODB_URI=mongodb://localhost:27017/prismart
+
+JWT_SECRET=super-secret-key
+JWT_EXPIRES_IN=24h
+
+# Optional, but recommended to bootstrap the super admin automatically
+SUPER_ADMIN_EMAIL=admin@prismart.local
+SUPER_ADMIN_PASSWORD=changeme123
+SUPER_ADMIN_USERNAME=superadmin
 ```
 
-## Compile and run the project
+### Install dependencies
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### Run the server
 
 ```bash
-# unit tests
-$ npm run test
+# development with autoreload
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# or simple run
+npm run start
 ```
 
-## Deployment
+The API will be available by default at `http://localhost:3000`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Quick health check
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+GET /health
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## Authentication & Roles Flow (summary)
 
-Check out a few resources that may come in handy when working with NestJS:
+- **Register** (`/auth/register`):
+  - Creates a user with role **`CUSTOMER`** and **no `storeId`**.
+  - The returned JWT **does not** include `storeId`.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- **Login** (`/auth/login`):
+  - Returns a JWT with `sub`, `email`, `role` and, if the user is `SALES_ADMIN` and has a store, also `storeId`.
 
-## Support
+- **Promotion to SALES_ADMIN** (`/auth/promote`):
+  - If the user exists, it ensures the user has role `SALES_ADMIN` and assigns a `storeId` if missing.
+  - If the user does not exist, it builds a temporary (non-persisted) user with role `SALES_ADMIN` and a generated `storeId`.
+  - In both cases, the returned JWT always includes `storeId` when `role` is `SALES_ADMIN`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+JWT payload examples:
 
-## Stay in touch
+- `CUSTOMER` user:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```ts
+{
+  sub: string;
+  email: string;
+  role: 'CUSTOMER';
+  // no storeId
+}
+```
 
-## License
+- `SALES_ADMIN` user:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```ts
+{
+  sub: string;
+  email: string;
+  role: 'SALES_ADMIN';
+  storeId: string;
+}
+```
+
+---
+
+## Main Endpoints
+
+### Auth (`/auth`)
+
+- **POST `/auth/register`**
+  - **Body**:
+    - `username: string` (4–40 chars)
+    - `email: string` (valid email)
+    - `password: string` (min. 8 chars)
+  - **Response**: user data + `token` (JWT as `CUSTOMER` without `storeId`).
+
+- **POST `/auth/login`**
+  - **Body**:
+    - `email: string`
+    - `password: string`
+  - **Response**: user data + `token` (JWT with `role` and, if applicable, `storeId`).
+
+- **POST `/auth/promote`**
+  - **Description**: promotes the user to `SALES_ADMIN` and returns a JWT that **always** includes `storeId` when the role is `SALES_ADMIN`.
+  - **Body**:
+    - `email: string`
+    - `username: string` (4–40 chars)  
+      - If the user already exists, `username` is only used when the user does not exist.
+  - **Response**:
+    - `{ token: string }` (JWT with `role: 'SALES_ADMIN'` and `storeId`).
+
+- **DELETE `/auth/disable/:userId`**
+  - **Roles**: `SUPER_ADMIN`
+  - Disables a user.
+
+- **PATCH `/auth/enable/:userId`**
+  - **Roles**: `SUPER_ADMIN`
+  - Enables a user.
+
+### Stores (`/stores`)
+
+- **POST `/stores`**
+  - **Auth**: JWT required (any authenticated user).
+  - Uses the `userId` from the JWT as the admin of the new store.
+  - If the user already has a `storeId` and a store exists for it, a conflict is thrown.
+
+- **GET `/stores/:id`**
+  - Returns store information.
+
+- **DELETE `/stores/:id`**
+  - **Roles**: `SUPER_ADMIN`
+
+### Products (`/products`)
+
+- **POST `/products`**
+  - **Auth**: JWT + role `SALES_ADMIN` or `SUPER_ADMIN`.
+  - Uses the `storeId` from the JWT to associate the product with the store.
+
+- **PATCH `/products/apply-discount`**
+  - **Auth**: JWT + role `SALES_ADMIN` or `SUPER_ADMIN`.
+
+- **DELETE `/products/:id`**
+  - **Auth**: JWT + role `SALES_ADMIN` or `SUPER_ADMIN`.
+
+### Cart (`/cart`)
+
+- **GET `/cart`**
+  - **Auth**: JWT.
+  - Returns the cart of the authenticated user.
+
+- **POST `/cart/items`**
+  - **Auth**: JWT.
+  - Uses `userId` and `storeId` from the JWT to add products to the cart.
+
+- **POST `/cart/checkout`**
+  - **Auth**: JWT.
+  - Creates an order for the current user in the store indicated by `storeId`.
+
+### Orders (`/orders`)
+
+- **POST `/orders`**
+  - **Auth**: JWT.
+  - Creates an order for the authenticated user using their `storeId`.
+
+- **GET `/orders/customer/:customerId`**
+  - Returns all orders for a given customer.
+
+- **GET `/orders/:id`**
+  - Returns a specific order.
+
+- **DELETE `/orders/:id`**
+  - **Auth**: JWT.
+  - Cancels the order and updates catalog stock using `storeId` from the JWT.
+
+### Seed / Demo Data (`/seed`)
+
+- **POST `/seed`**
+  - **Roles**: `SUPER_ADMIN` only.
+  - Creates a demo store called **"Prismart Demo Store"** (address in CDMX) and **25 furniture/home products** associated with it.
+  - The store is assigned to the authenticated `SUPER_ADMIN` user.
+  - **Idempotency**: if the demo store already exists, returns a `409 Conflict` error. Delete the store first to re-seed.
+  - **Product specs**: prices between $899–$3999 MXN, stock between 2–9 units, category `hogar`, SKUs that match each product name.
+  - **Response**:
+    ```json
+    {
+      "storeId": "...",
+      "storeName": "Prismart Demo Store",
+      "productsCreated": 25
+    }
+    ```
+
+---
+
+## Quick dev testing notes
+
+- Use tools like **Insomnia** or **Postman**:
+  1. `POST /auth/register` → get a `CUSTOMER` `token`.
+  2. `POST /auth/promote` with the same `email` → get a `SALES_ADMIN` `token` with `storeId`.
+  3. With that token, try:
+     - `POST /stores` (create store if it does not exist yet).
+     - `POST /products` (create products for that store).
+     - Cart and orders flow using the same JWT (which contains `storeId`).

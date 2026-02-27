@@ -54,6 +54,6 @@ const useCases = [
     },
   ],
   controllers: [StoreController],
-  exports: [StoreIntegrationPort],
+  exports: [StoreIntegrationPort, StoreRepositoryPort],
 })
 export class StoreModule {}

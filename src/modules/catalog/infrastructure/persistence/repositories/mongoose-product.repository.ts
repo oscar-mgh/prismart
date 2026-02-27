@@ -72,6 +72,7 @@ export class MongooseProductRepository implements ProductRepositoryPort {
       updateOne: {
         filter: { _id: product.id.getValue() },
         update: { $set: ProductMapper.toPersistence(product) as any },
+        upsert: true,
       },
     }));
 

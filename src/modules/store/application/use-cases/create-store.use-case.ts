@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { UserRole } from 'src/modules/auth/domain/entities/user.entity';
 import { UserRepositoryPort } from 'src/modules/auth/domain/ports/user-repository.port';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { Store } from '../../domain/entities/store.entity';
