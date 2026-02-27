@@ -39,6 +39,10 @@ export class ProductResponseDto {
   @Min(0)
   finalPrice: number;
 
+  @IsNumber()
+  @Min(0)
+  purchaseCount: number;
+
   @IsOptional()
   @Type(() => Object)
   @ValidateNested()

@@ -5,6 +5,7 @@ export interface CreateProductCommand {
   price: number;
   stock: number;
   category: string;
+  purchaseCount?: number;
   discount?: {
     code: string;
     percentage: number;

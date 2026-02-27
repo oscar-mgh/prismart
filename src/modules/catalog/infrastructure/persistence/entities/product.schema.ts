@@ -12,6 +12,7 @@ export class ProductDocument extends Document {
   @Prop({ required: true }) stock: number;
   @Prop({ default: true }) active: boolean;
   @Prop({ required: true }) category: string;
+  @Prop({ default: 0 }) purchaseCount: number;
 
   @Prop({
     type: {

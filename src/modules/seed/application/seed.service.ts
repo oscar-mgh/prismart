@@ -37,7 +37,7 @@ export class SeedService {
 
     const products = SEED_PRODUCTS.map(
       (p) =>
-        new Product(Id.create(), storeId, new Sku(p.sku), p.name, p.description, p.price, p.stock, p.category, true),
+        new Product(Id.create(), storeId, new Sku(p.sku), p.name, p.description, p.price, p.stock, p.category, true, Math.floor(Math.random() * 25) + 3),
     );
 
     await this.productRepository.saveMany(products);

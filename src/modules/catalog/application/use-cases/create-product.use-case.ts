@@ -11,7 +11,7 @@ export class CreateProductUseCase {
   constructor(private readonly productRepository: ProductRepositoryPort) {}
 
   async execute(command: CreateProductCommand, storeId: string): Promise<Product> {
-    const { sku, name, description, price, stock, category, discount } = command;
+    const { sku, name, description, price, stock, category, purchaseCount, discount } = command;
 
     let discountData: ProductDiscount | undefined;
 
@@ -30,6 +30,7 @@ export class CreateProductUseCase {
       stock,
       category,
       true,
+      purchaseCount ?? 0,
       discountData,
     );
 

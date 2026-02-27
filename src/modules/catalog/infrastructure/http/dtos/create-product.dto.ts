@@ -28,6 +28,11 @@ export class CreateProductDto {
   @IsString()
   category: string;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  purchaseCount?: number;
+
   @IsObject()
   @IsOptional()
   discount?: {

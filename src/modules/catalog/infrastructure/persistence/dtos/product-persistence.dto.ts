@@ -8,6 +8,7 @@ export interface ProductPersistenceDto {
   readonly stock: number;
   readonly active: boolean;
   readonly category: string;
+  readonly purchaseCount: number;
   readonly discount?: {
     readonly code: string;
     readonly percentage: number;

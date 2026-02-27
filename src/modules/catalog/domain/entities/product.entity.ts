@@ -13,6 +13,7 @@ export class Product {
     private stock: number,
     private category: string,
     private active: boolean = true,
+    private purchaseCount: number = 0,
     private discount?: ProductDiscount,
   ) {
     this.validate();
@@ -47,6 +48,9 @@ export class Product {
   }
   public getCategory(): string {
     return this.category;
+  }
+  public getPurchaseCount(): number {
+    return this.purchaseCount;
   }
   public getDiscount(): ProductDiscount | undefined {
     return this.discount;

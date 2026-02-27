@@ -22,6 +22,7 @@ export class ProductMapper {
       raw.stock,
       raw.category,
       raw.active,
+      raw.purchaseCount ?? 0,
       discount,
     );
   }
@@ -39,6 +40,7 @@ export class ProductMapper {
       stock: domain.getStock(),
       active: domain.isActive(),
       category: domain.getCategory(),
+      purchaseCount: domain.getPurchaseCount(),
       discount: discount
         ? {
             code: discount.getCode(),
@@ -64,6 +66,7 @@ export class ProductMapper {
       finalPrice: finalPrice || product.getPrice(),
       stock: product.getStock(),
       category: product.getCategory(),
+      purchaseCount: product.getPurchaseCount(),
       discount: discount
         ? {
             code: discount.getCode(),
