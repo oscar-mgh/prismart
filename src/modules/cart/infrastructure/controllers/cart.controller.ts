@@ -1,8 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { GetUser } from 'src/modules/auth/infrastructure/auth/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/infrastructure/auth/guards/jwt-auth.guard';
-import { OrderResponseDto } from 'src/modules/order/infrastructure/http/dtos/order-response.dto';
-import { OrderMapper } from 'src/modules/order/infrastructure/persistence/mappers/order.mapper';
 import { ValidateObjectIdPipe } from 'src/modules/shared/infrastructure/pipes/validate-object-id.pipe';
 import { AddToCartUseCase } from '../../application/use-cases/add-to-cart.use-case';
 import { CheckoutUseCase } from '../../application/use-cases/checkout.use-case';
@@ -10,6 +8,7 @@ import { DeleteCartUseCase } from '../../application/use-cases/delete-cart.use-c
 import { FindCartByUserIdUseCase } from '../../application/use-cases/find-cart-by-user-id.use-case';
 import { AddItemDto } from '../http/dtos/add-item.dto';
 import { CartResponseDto } from '../http/dtos/cart-response.dto';
+import { CheckoutResponseDto } from '../http/dtos/checkout-response.dto';
 import { CartMapper } from '../persistence/mappers/cart.mapper';
 
 @Controller('cart')
@@ -46,9 +45,8 @@ export class CartController {
   async checkout(
     @GetUser('id', ValidateObjectIdPipe) userId: string,
     @GetUser('storeId') storeId: string,
-  ): Promise<OrderResponseDto> {
-    const order = await this.checkoutUseCase.execute({ userId }, storeId);
-    return OrderMapper.toResponse(order);
+  ): Promise<CheckoutResponseDto> {
+    return await this.checkoutUseCase.execute({ userId }, storeId);
   }
 
   @Delete()

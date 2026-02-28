@@ -1,6 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateOrderUseCase } from 'src/modules/order/application/use-cases/create-order.use-case';
-import { Order } from 'src/modules/order/domain/entities/order.entity';
+import { Injectable } from '@nestjs/common';
+import { CheckoutPort, CheckoutResult } from '../../domain/ports/checkout.port';
 import { CartRepositoryPort } from '../../domain/ports/cart-repository.port';
 import { CheckoutCommand } from './commands/checkout.command';
 
@@ -8,13 +7,13 @@ import { CheckoutCommand } from './commands/checkout.command';
 export class CheckoutUseCase {
   constructor(
     private readonly cartRepository: CartRepositoryPort,
-    private readonly createOrderUseCase: CreateOrderUseCase,
+    private readonly checkoutPort: CheckoutPort,
   ) {}
 
-  async execute(command: CheckoutCommand, storeId: string): Promise<Order> {
+  async execute(command: CheckoutCommand, storeId: string): Promise<CheckoutResult> {
     const cart = await this.cartRepository.findByUserId(command.userId);
     if (!cart || cart.getItems().length === 0) {
-      throw new BadRequestException('Cannot checkout an empty cart');
+      throw new Error('Cannot checkout an empty cart');
     }
 
     const orderItemsDto = cart.getItems().map((item) => ({
@@ -22,16 +21,14 @@ export class CheckoutUseCase {
       quantity: item.getQuantity(),
     }));
 
-    const order = await this.createOrderUseCase.execute(
-      {
-        customerId: cart.getUserId(),
-        items: orderItemsDto,
-      },
+    const result = await this.checkoutPort.createOrderFromCart(
+      cart.getUserId(),
+      orderItemsDto,
       storeId,
     );
 
     await this.cartRepository.deleteByUserId(command.userId);
 
-    return order;
+    return result;
   }
 }

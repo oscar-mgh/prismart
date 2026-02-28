@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CatalogModule } from 'src/modules/catalog/infrastructure/catalog.module';
-import { CreateOrderUseCase } from 'src/modules/order/application/use-cases/create-order.use-case';
 import { CatalogIntegrationPort } from 'src/modules/order/domain/ports/catalog-integration.port';
 import { OrderModule } from 'src/modules/order/infrastructure/order.module';
 import { EntityFinderService } from 'src/modules/shared/application/services/entity-finder.service';
@@ -10,6 +9,8 @@ import { CheckoutUseCase } from '../application/use-cases/checkout.use-case';
 import { DeleteCartUseCase } from '../application/use-cases/delete-cart.use-case';
 import { FindCartByUserIdUseCase } from '../application/use-cases/find-cart-by-user-id.use-case';
 import { CartRepositoryPort } from '../domain/ports/cart-repository.port';
+import { CheckoutPort } from '../domain/ports/checkout.port';
+import { CheckoutAdapter } from './adapters/checkout.adapter';
 import { CartController } from './controllers/cart.controller';
 import { MongooseCartRepository } from './persistence/repositories/mongoose-cart.repository';
 import { CartDocument, CartSchema } from './persistence/schemas/cart.schema';
@@ -32,8 +33,8 @@ const useCases = [
   },
   {
     provide: CheckoutUseCase,
-    inject: [CartRepositoryPort, CreateOrderUseCase],
-    useFactory: (repo: CartRepositoryPort, create: CreateOrderUseCase) => new CheckoutUseCase(repo, create),
+    inject: [CartRepositoryPort, CheckoutPort],
+    useFactory: (repo: CartRepositoryPort, checkoutPort: CheckoutPort) => new CheckoutUseCase(repo, checkoutPort),
   },
 ];
 
@@ -53,6 +54,10 @@ const useCases = [
     {
       provide: CartRepositoryPort,
       useClass: MongooseCartRepository,
+    },
+    {
+      provide: CheckoutPort,
+      useClass: CheckoutAdapter,
     },
   ],
   controllers: [CartController],
