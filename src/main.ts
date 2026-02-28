@@ -2,6 +2,7 @@ import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './modules/shared/infrastructure/filters/http-exception.filter';
+import { DomainExceptionFilter } from './modules/shared/infrastructure/filters/domain-exception.filter';
 import { LoggerInterceptor } from './modules/shared/infrastructure/interceptors/logger.interceptor';
 
 async function bootstrap() {
@@ -19,7 +20,7 @@ async function bootstrap() {
       errorHttpStatusCode: HttpStatus.BAD_REQUEST,
     }),
   );
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new DomainExceptionFilter(), new HttpExceptionFilter());
   app.useGlobalInterceptors(new LoggerInterceptor());
 
   await app.listen(port);

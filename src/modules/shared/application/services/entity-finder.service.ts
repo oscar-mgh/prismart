@@ -1,4 +1,5 @@
-import { GoneException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { EntityInactiveException, EntityNotFoundException } from '../../domain/exceptions/domain.exceptions';
 import { EntityWithStatus, GenericRepositoryPort, UserSearchableRepository } from '../../domain/ports/repository.port';
 
 @Injectable()
@@ -12,11 +13,11 @@ export class EntityFinderService {
     const entity = await repository.findById(id, options);
 
     if (!entity) {
-      throw new NotFoundException(`${entityName} with ID "${id}" not found`);
+      throw new EntityNotFoundException(entityName, id);
     }
 
     if (!entity.isActive()) {
-      throw new GoneException(`${entityName} with ID "${id}" is inactive/deleted`);
+      throw new EntityInactiveException(entityName, id);
     }
 
     return entity;
@@ -30,11 +31,11 @@ export class EntityFinderService {
     const entity = await repository.findByUserId(ownerId);
 
     if (!entity) {
-      throw new NotFoundException(`${entityName} for user "${ownerId}" not found`);
+      throw new EntityNotFoundException(entityName, ownerId);
     }
 
     if (!entity.isActive()) {
-      throw new GoneException(`${entityName} is inactive`);
+      throw new EntityInactiveException(entityName, ownerId);
     }
 
     return entity;
