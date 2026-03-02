@@ -11,7 +11,7 @@ export class CancelOrderUseCase {
     private readonly catalogIntegration: CatalogIntegrationPort,
   ) {}
 
-  async execute(command: CancelOrderCommand, storeId: string): Promise<void> {
+  async execute(command: CancelOrderCommand): Promise<void> {
     const { orderId, userId } = command;
     const order = await this.orderRepository.findById(orderId);
 
@@ -32,7 +32,7 @@ export class CancelOrderUseCase {
     await this.orderRepository.save(order);
 
     for (const item of order.getItems()) {
-      await this.catalogIntegration.updateStock(item.getProductId(), -item.getQuantity(), storeId);
+      await this.catalogIntegration.updateStockAndPurchaseCount(item.getProductId(), -item.getQuantity());
     }
   }
 }

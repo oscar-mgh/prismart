@@ -13,10 +13,10 @@ export class CreateOrderUseCase {
     private readonly catalogIntegration: CatalogIntegrationPort,
   ) {}
 
-  async execute(command: CreateOrderCommand, storeId: string): Promise<Order> {
+  async execute(command: CreateOrderCommand): Promise<Order> {
     const { customerId, items } = command;
     const productIds = items.map((item) => item.productId);
-    const productsInfo = await this.catalogIntegration.getProductsInfo(productIds, storeId);
+    const productsInfo = await this.catalogIntegration.getProductsInfo(productIds);
     const orderItems = items.map((item) => {
       const info = productsInfo.find((p) => p.productId === item.productId);
 
@@ -35,7 +35,7 @@ export class CreateOrderUseCase {
     const savedOrder = await this.orderRepository.save(order);
 
     for (const item of items) {
-      await this.catalogIntegration.updateStock(item.productId, item.quantity, storeId);
+      await this.catalogIntegration.updateStockAndPurchaseCount(item.productId, item.quantity);
     }
 
     return savedOrder;

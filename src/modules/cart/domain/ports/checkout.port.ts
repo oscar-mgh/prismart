@@ -17,6 +17,5 @@ export abstract class CheckoutPort {
   abstract createOrderFromCart(
     customerId: string,
     items: { productId: string; quantity: number }[],
-    storeId: string,
   ): Promise<CheckoutResult>;
 }

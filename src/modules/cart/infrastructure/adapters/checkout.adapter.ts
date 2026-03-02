@@ -9,9 +9,8 @@ export class CheckoutAdapter implements CheckoutPort {
   async createOrderFromCart(
     customerId: string,
     items: { productId: string; quantity: number }[],
-    storeId: string,
   ): Promise<CheckoutResult> {
-    const order = await this.createOrderUseCase.execute({ customerId, items }, storeId);
+    const order = await this.createOrderUseCase.execute({ customerId, items });
 
     return {
       orderId: order.id.getValue(),

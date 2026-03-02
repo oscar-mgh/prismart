@@ -12,9 +12,9 @@ export class AddToCartUseCase {
     private readonly catalogIntegration: CatalogIntegrationPort,
   ) {}
 
-  async execute(command: AddToCartCommand, storeId: string): Promise<Cart> {
+  async execute(command: AddToCartCommand): Promise<Cart> {
     const { userId, productId, quantity } = command;
-    const [product] = await this.catalogIntegration.getProductsInfo([productId], storeId);
+    const [product] = await this.catalogIntegration.getProductsInfo([productId]);
     if (!product) throw new NotFoundException('Product not found');
 
     if (product.availableStock < quantity) {

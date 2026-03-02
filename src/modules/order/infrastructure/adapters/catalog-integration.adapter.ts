@@ -19,12 +19,18 @@ export class CatalogIntegrationAdapter implements CatalogIntegrationPort {
       }));
   }
 
-  async updateStock(productId: string, quantity: number): Promise<void> {
+  async updateStockAndPurchaseCount(productId: string, quantity: number): Promise<void> {
     const product = await this.productRepository.findById(productId);
     if (!product) return;
 
     const newStock = product.getStock() - quantity;
     product.updateStock(newStock);
+
+    if (quantity > 0) {
+      product.increasePurchaseCount(quantity);
+    } else {
+      product.decreasePurchaseCount(Math.abs(quantity));
+    }
 
     await this.productRepository.save(product);
   }

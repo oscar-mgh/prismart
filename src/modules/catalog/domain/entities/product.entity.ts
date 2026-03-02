@@ -72,8 +72,16 @@ export class Product {
   }
 
   public updateStock(newQuantity: number) {
-    if (newQuantity < 0) throw new Error('Stock cannot be negative');
+    if (newQuantity <= 0) throw new Error('Wrong stock quantity');
     this.stock = newQuantity;
+  }
+
+  public increasePurchaseCount(quantity: number) {
+    this.purchaseCount += quantity;
+  }
+
+  public decreasePurchaseCount(quantity: number) {
+    this.purchaseCount -= quantity;
   }
 
   public applyDiscount(discount: ProductDiscount): void {

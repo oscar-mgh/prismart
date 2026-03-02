@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
 export class AddItemDto {
   @IsString()
   @IsNotEmpty()
+  @IsMongoId()
   productId: string;
 
   @IsNumber()

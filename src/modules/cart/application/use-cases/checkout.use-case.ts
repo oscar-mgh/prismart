@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CheckoutPort, CheckoutResult } from '../../domain/ports/checkout.port';
 import { CartRepositoryPort } from '../../domain/ports/cart-repository.port';
+import { CheckoutPort, CheckoutResult } from '../../domain/ports/checkout.port';
 import { CheckoutCommand } from './commands/checkout.command';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class CheckoutUseCase {
     private readonly checkoutPort: CheckoutPort,
   ) {}
 
-  async execute(command: CheckoutCommand, storeId: string): Promise<CheckoutResult> {
+  async execute(command: CheckoutCommand): Promise<CheckoutResult> {
     const cart = await this.cartRepository.findByUserId(command.userId);
     if (!cart || cart.getItems().length === 0) {
       throw new Error('Cannot checkout an empty cart');
@@ -21,11 +21,7 @@ export class CheckoutUseCase {
       quantity: item.getQuantity(),
     }));
 
-    const result = await this.checkoutPort.createOrderFromCart(
-      cart.getUserId(),
-      orderItemsDto,
-      storeId,
-    );
+    const result = await this.checkoutPort.createOrderFromCart(cart.getUserId(), orderItemsDto);
 
     await this.cartRepository.deleteByUserId(command.userId);
 

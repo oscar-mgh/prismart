@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { UserRole } from 'src/modules/auth/domain/entities/user.entity';
 import { GetUser } from 'src/modules/auth/infrastructure/auth/decorators/get-user.decorator';
+import { Roles } from 'src/modules/auth/infrastructure/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/infrastructure/auth/guards/jwt-auth.guard';
 import { ValidateObjectIdPipe } from 'src/modules/shared/infrastructure/pipes/validate-object-id.pipe';
 import { AddToCartUseCase } from '../../application/use-cases/add-to-cart.use-case';
@@ -13,6 +15,7 @@ import { CartMapper } from '../persistence/mappers/cart.mapper';
 
 @Controller('cart')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.CUSTOMER, UserRole.SALES_ADMIN)
 export class CartController {
   constructor(
     private readonly addToCartUseCase: AddToCartUseCase,
@@ -31,22 +34,17 @@ export class CartController {
   @Post('items')
   @HttpCode(HttpStatus.CREATED)
   async addItem(
-    @GetUser('id') userId: string,
     @Body() dto: AddItemDto,
-    @GetUser('storeId', ValidateObjectIdPipe) storeId: string,
+    @GetUser('id', ValidateObjectIdPipe) userId: string,
   ): Promise<CartResponseDto> {
-    const { productId, quantity } = dto;
-    const cart = await this.addToCartUseCase.execute({ userId, productId, quantity }, storeId);
+    const cart = await this.addToCartUseCase.execute({ ...dto, userId });
     return CartMapper.toResponse(cart);
   }
 
   @Post('checkout')
   @HttpCode(HttpStatus.CREATED)
-  async checkout(
-    @GetUser('id', ValidateObjectIdPipe) userId: string,
-    @GetUser('storeId') storeId: string,
-  ): Promise<CheckoutResponseDto> {
-    return await this.checkoutUseCase.execute({ userId }, storeId);
+  async checkout(@GetUser('id', ValidateObjectIdPipe) userId: string): Promise<CheckoutResponseDto> {
+    return await this.checkoutUseCase.execute({ userId });
   }
 
   @Delete()
