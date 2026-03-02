@@ -60,9 +60,15 @@ export class ProductController {
   @Get('criteria')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async findByCriteria(@Query() query: CriteriaQueryDto): Promise<ProductResponseDto[]> {
-    const products = await this.findByCriteriaUseCase.execute(query);
-    return products.map((product) => ProductMapper.toResponse(product));
+  async findByCriteria(@Query() query: CriteriaQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
+    const { page, totalElements, totalPages, data } = await this.findByCriteriaUseCase.execute(query);
+
+    return {
+      page,
+      totalPages,
+      totalElements,
+      data: data.map((product) => ProductMapper.toResponse(product)),
+    };
   }
 
   @Get(':id')

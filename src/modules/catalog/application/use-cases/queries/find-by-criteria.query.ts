@@ -3,4 +3,7 @@ export interface FindByCriteriaQuery {
   skus?: string[];
   category?: string;
   active?: boolean;
+  page?: number;
+  limit?: number;
+  sortByPurchaseCount?: 'asc' | 'desc';
 }

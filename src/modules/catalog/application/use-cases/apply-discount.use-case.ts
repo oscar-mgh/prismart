@@ -11,7 +11,7 @@ export class ApplyDiscountUseCase {
     const { criteria, discountData } = command;
     const { skus, ids, category } = criteria;
   
-    const products = await this.productRepository.findByCriteria({ skus, ids, category });
+    const { data: products } = await this.productRepository.findByCriteria({ skus, ids, category });
   
     if (!products || products.length === 0) return 0;
   

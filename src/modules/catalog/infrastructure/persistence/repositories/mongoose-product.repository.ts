@@ -62,9 +62,24 @@ export class MongooseProductRepository implements ProductRepositoryPort {
     await this.productModel.findByIdAndUpdate({ _id: id, active: true }, { active: false }).exec();
   }
 
-  async findByCriteria(productCriteria: ProductCriteria): Promise<Product[]> {
-    const products = await this.getProductsByCriteria(productCriteria);
-    return products.map((doc) => ProductMapper.toDomain(doc));
+  async findByCriteria(productCriteria: ProductCriteria): Promise<Page<Product>> {
+    const { page = 1, limit = 10, sortByPurchaseCount = 'desc' } = productCriteria;
+    const skip = (page - 1) * limit;
+
+    const query = this.buildCriteriaQuery(productCriteria);
+    const sortOrder = sortByPurchaseCount === 'asc' ? 1 : -1;
+
+    const [docs, totalElements] = await Promise.all([
+      this.productModel.find(query).sort({ purchaseCount: sortOrder }).skip(skip).limit(limit).exec(),
+      this.productModel.countDocuments(query).exec(),
+    ]);
+
+    return {
+      data: docs.map((doc) => ProductMapper.toDomain(doc)),
+      page,
+      totalPages: Math.ceil(totalElements / limit),
+      totalElements,
+    };
   }
 
   async saveMany(products: Product[]): Promise<void> {
@@ -82,7 +97,8 @@ export class MongooseProductRepository implements ProductRepositoryPort {
   async applyDiscount(criteria: ProductCriteria, discountData: DiscountData): Promise<number> {
     const { code, percentage, expirationDate } = discountData;
 
-    const products = await this.getProductsByCriteria(criteria);
+    const query = this.buildCriteriaQuery(criteria);
+    const products = await this.productModel.find(query).exec();
     
     for (const product of products) {
       const productDomain = ProductMapper.toDomain(product);
@@ -94,16 +110,15 @@ export class MongooseProductRepository implements ProductRepositoryPort {
     return products.length;
   }
 
-  private async getProductsByCriteria({ ids, skus, category }: ProductCriteria): Promise<any[]> {
+  private buildCriteriaQuery({ ids, skus, category, active }: ProductCriteria): Record<string, any> {
     const query: Record<string, any> = {};
 
     if (ids?.length) query._id = { $in: ids };
     if (skus?.length) query.sku = { $in: skus };
     if (category) query.category = category;
 
-    query.active = true;
+    query.active = active ?? true;
 
-    const products = await this.productModel.find(query).exec();
-    return products;
+    return query;
   }
 }

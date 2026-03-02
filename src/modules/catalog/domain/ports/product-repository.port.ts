@@ -5,6 +5,10 @@ export interface ProductCriteria {
   ids?: string[];
   skus?: string[];
   category?: string;
+  active?: boolean;
+  page?: number;
+  limit?: number;
+  sortByPurchaseCount?: 'asc' | 'desc';
 }
 
 export type DiscountData = { code: string; percentage: number; expirationDate: Date };
@@ -16,7 +20,7 @@ export abstract class ProductRepositoryPort {
 
   abstract findAll(page: number, limit: number): Promise<Page<Product>>;
 
-  abstract findByCriteria(criteria: ProductCriteria): Promise<Product[]>;
+  abstract findByCriteria(criteria: ProductCriteria): Promise<Page<Product>>;
 
   abstract findById(id: string): Promise<Product | null>;
 
