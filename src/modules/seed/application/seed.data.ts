@@ -26,7 +26,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 2799.0,
     stock: 6,
     sku: 'MESA-TRAB-120-BL',
-    category: 'oficina_home',
+    category: 'oficina',
   },
   {
     name: 'Sofá modular funcional 3 plazas',
@@ -35,7 +35,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 3699.0,
     stock: 3,
     sku: 'SOFA-MOD-3P-GRS',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Silla ergonómica para oficina',
@@ -44,7 +44,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 2399.0,
     stock: 8,
     sku: 'SILLA-ERG-OFC',
-    category: 'muebles_oficina',
+    category: 'oficina',
   },
   {
     name: 'Repisa flotante organizadora',
@@ -71,7 +71,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 3299.0,
     stock: 2,
     sku: 'CAMA-MAT-FUNC-BG',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Mesa de centro práctica',
@@ -80,7 +80,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 2199.0,
     stock: 4,
     sku: 'MESA-CENT-PRAC',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Librero organizador vertical',
@@ -98,7 +98,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 2999.0,
     stock: 4,
     sku: 'ESC-L-OFC-NOG',
-    category: 'muebles_oficina',
+    category: 'oficina',
   },
   {
     name: 'Sillón reclinable para sala',
@@ -107,7 +107,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 3199.0,
     stock: 4,
     sku: 'SILL-RECL-CAF',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Cómoda organizadora 6 cajones',
@@ -133,7 +133,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 1399.0,
     stock: 6,
     sku: 'BANC-FUNC-REC',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Espejo decorativo redondo',
@@ -150,7 +150,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 999.0,
     stock: 6,
     sku: 'MESA-AUX-MULT',
-    category: 'oficina_home',
+    category: 'oficina',
   },
   {
     name: 'Organizador modular de closet',
@@ -167,7 +167,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 999.0,
     stock: 8,
     sku: 'BANC-ALTO-BAR',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Sofá cama práctico',
@@ -176,7 +176,7 @@ export const SEED_PRODUCTS: SeedProductData[] = [
     price: 2699.0,
     stock: 4,
     sku: 'SOFA-CAMA-PRAC',
-    category: 'muebles_hogar',
+    category: 'hogar',
   },
   {
     name: 'Vitrina organizadora con puertas',
