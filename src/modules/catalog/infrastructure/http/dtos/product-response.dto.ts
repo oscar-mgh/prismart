@@ -44,6 +44,10 @@ export class ProductResponseDto {
   purchaseCount: number;
 
   @IsOptional()
+  @IsNumber()
+  averageRating: number | null;
+
+  @IsOptional()
   @Type(() => Object)
   @ValidateNested()
   discount?: {

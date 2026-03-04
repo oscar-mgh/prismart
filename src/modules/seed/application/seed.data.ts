@@ -7,6 +7,47 @@ export interface SeedProductData {
   category: string;
 }
 
+export interface SeedReviewData {
+  title: string;
+  description: string;
+  rating: number;
+}
+
+export const SEED_REVIEW_TEMPLATES: { title: string; description: string }[] = [
+  {
+    title: 'Excelente producto',
+    description: 'Me encantó este producto, la calidad es increíble y superó mis expectativas por mucho.',
+  },
+  {
+    title: 'Muy buena compra',
+    description: 'Relación calidad-precio muy buena. Lo recomiendo ampliamente a quien busque algo así.',
+  },
+  {
+    title: 'Buen producto en general',
+    description: 'Cumple con lo esperado, buena calidad de materiales y el acabado es muy profesional.',
+  },
+  {
+    title: 'Recomendado totalmente',
+    description: 'El producto llegó en perfectas condiciones y es exactamente como se describe en la tienda.',
+  },
+  {
+    title: 'Satisfecho con la compra',
+    description: 'Estoy muy satisfecho con mi compra. La calidad del producto es excelente y duradera.',
+  },
+  {
+    title: 'Gran calidad y diseño',
+    description: 'El diseño es moderno y elegante. Los materiales son de primera calidad, vale la pena.',
+  },
+  {
+    title: 'Cumple expectativas',
+    description: 'El producto cumple con todas las especificaciones mencionadas. Muy contento con la compra.',
+  },
+  {
+    title: 'Ideal para el hogar',
+    description: 'Perfecto para mi hogar. Se ve muy bien y es funcional, justo lo que necesitaba encontrar.',
+  },
+];
+
 export const SEED_STORE = {
   name: 'Prismart Demo Store',
   address: {

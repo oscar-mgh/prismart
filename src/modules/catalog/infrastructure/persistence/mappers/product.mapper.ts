@@ -52,7 +52,7 @@ export class ProductMapper {
     };
   }
 
-  static toResponse(product: Product): ProductResponseDto {
+  static toResponse(product: Product, averageRating?: number | null): ProductResponseDto {
     const discount = product.getDiscount();
     const finalPrice = product.getFinalPrice();
 
@@ -67,6 +67,7 @@ export class ProductMapper {
       stock: product.getStock(),
       category: product.getCategory(),
       purchaseCount: product.getPurchaseCount(),
+      averageRating: averageRating ?? null,
       discount: discount
         ? {
             code: discount.getCode(),

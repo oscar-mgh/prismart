@@ -25,6 +25,7 @@ import { DeleteProductUseCase } from '../../application/use-cases/delete-product
 import { FindAllProductsUseCase } from '../../application/use-cases/find-all-products.use-case';
 import { FindByCriteriaUseCase } from '../../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../../application/use-cases/find-product-by-id.use-case';
+import { ReviewIntegrationPort } from '../../domain/ports/review-integration.port';
 import { ApplyDiscountResponseDto } from '../http/dtos/apply-discount-response.dto';
 import { ApplyDiscountDto } from '../http/dtos/apply-discount.dto';
 import { CreateProductDto } from '../http/dtos/create-product.dto';
@@ -42,6 +43,7 @@ export class ProductController {
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly applyDiscountUseCase: ApplyDiscountUseCase,
     private readonly findByCriteriaUseCase: FindByCriteriaUseCase,
+    private readonly reviewIntegration: ReviewIntegrationPort,
   ) {}
 
   @Get()
@@ -49,11 +51,14 @@ export class ProductController {
   async findAll(@Query() query: PaginationQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
     const { page, totalElements, totalPages, data } = await this.findAllProductsUseCase.execute(query);
 
+    const productIds = data.map((p) => p.id.getValue());
+    const ratingsMap = await this.reviewIntegration.getAverageRatings(productIds);
+
     return {
       page,
       totalPages,
       totalElements,
-      data: data.map((product) => ProductMapper.toResponse(product)),
+      data: data.map((product) => ProductMapper.toResponse(product, ratingsMap.get(product.id.getValue()))),
     };
   }
 
@@ -63,11 +68,14 @@ export class ProductController {
   async findByCriteria(@Query() query: CriteriaQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
     const { page, totalElements, totalPages, data } = await this.findByCriteriaUseCase.execute(query);
 
+    const productIds = data.map((p) => p.id.getValue());
+    const ratingsMap = await this.reviewIntegration.getAverageRatings(productIds);
+
     return {
       page,
       totalPages,
       totalElements,
-      data: data.map((product) => ProductMapper.toResponse(product)),
+      data: data.map((product) => ProductMapper.toResponse(product, ratingsMap.get(product.id.getValue()))),
     };
   }
 
@@ -76,7 +84,8 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ValidateObjectIdPipe) id: string): Promise<ProductResponseDto> {
     const product = await this.findProductByIdUseCase.execute({ id });
-    return ProductMapper.toResponse(product);
+    const averageRating = await this.reviewIntegration.getAverageRating(id);
+    return ProductMapper.toResponse(product, averageRating);
   }
 
   @Post()
