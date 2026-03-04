@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, SortOrder } from 'mongoose';
 import { Page } from 'src/modules/shared/pagination/page.model';
 import { Product } from '../../../domain/entities/product.entity';
 import { DiscountData, ProductCriteria, ProductRepositoryPort } from '../../../domain/ports/product-repository.port';
@@ -41,12 +41,13 @@ export class MongooseProductRepository implements ProductRepositoryPort {
     return doc ? ProductMapper.toDomain(doc) : null;
   }
 
-  async findAll(page: number, limit: number): Promise<Page<Product>> {
+  async findAll(page: number, limit: number, sortBy?: string): Promise<Page<Product>> {
     const skip = (page - 1) * limit;
     const filter = { active: true };
+    const sort = this.buildSortOptions(sortBy);
 
     const [docs, totalElements] = await Promise.all([
-      this.productModel.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.productModel.find(filter).skip(skip).limit(limit).sort(sort).exec(),
       this.productModel.countDocuments(filter).exec(),
     ]);
 
@@ -108,6 +109,23 @@ export class MongooseProductRepository implements ProductRepositoryPort {
     }
 
     return products.length;
+  }
+
+  private buildSortOptions(sortBy?: string): Record<string, SortOrder> {
+    switch (sortBy) {
+      case 'price_high':
+        return { price: -1 };
+      case 'price_low':
+        return { price: 1 };
+      case 'best_selling':
+        return { purchaseCount: -1 };
+      case 'best_rated':
+        // Sorting by rating is handled at the application/controller layer
+        return { updatedAt: -1, createdAt: -1 };
+      case 'recent':
+      default:
+        return { updatedAt: -1, createdAt: -1 };
+    }
   }
 
   private buildCriteriaQuery({ ids, skus, category, active }: ProductCriteria): Record<string, any> {

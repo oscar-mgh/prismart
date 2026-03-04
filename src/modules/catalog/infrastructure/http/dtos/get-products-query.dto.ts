@@ -1,33 +1,16 @@
-import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { PaginationQueryDto } from './pagination.dto';
 
-export enum SortOrder {
-    ASC = 'asc',
-    DESC = 'desc',
+export enum ProductSortBy {
+  RECENT = 'recent',
+  PRICE_HIGH = 'price_high',
+  PRICE_LOW = 'price_low',
+  BEST_SELLING = 'best_selling',
+  BEST_RATED = 'best_rated',
 }
 
 export class GetProductsQueryDto extends PaginationQueryDto {
-    @IsOptional()
-    @IsString()
-    search?: string;
-
-    @IsOptional()
-    @IsString()
-    sortBy?: string = 'createdAt';
-
-    @IsOptional()
-    @IsEnum(SortOrder)
-    sortOrder?: SortOrder = SortOrder.DESC;
-
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    @Min(0)
-    minPrice?: number;
-
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    maxPrice?: number;
+  @IsOptional()
+  @IsEnum(ProductSortBy)
+  sortBy?: ProductSortBy = ProductSortBy.RECENT;
 }

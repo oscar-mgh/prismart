@@ -15,6 +15,8 @@ export class Product {
     private active: boolean = true,
     private purchaseCount: number = 0,
     private discount?: ProductDiscount,
+    private readonly createdAt: Date = new Date(),
+    private readonly updatedAt: Date | null = null,
   ) {
     this.validate();
   }
@@ -54,6 +56,12 @@ export class Product {
   }
   public getDiscount(): ProductDiscount | undefined {
     return this.discount;
+  }
+  public getCreatedAt(): Date {
+    return this.createdAt;
+  }
+  public getUpdatedAt(): Date | null {
+    return this.updatedAt;
   }
 
   public getFinalPrice(): number {

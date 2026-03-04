@@ -18,7 +18,7 @@ export abstract class ProductRepositoryPort {
 
   abstract saveMany(products: Product[]): Promise<void>;
 
-  abstract findAll(page: number, limit: number): Promise<Page<Product>>;
+  abstract findAll(page: number, limit: number, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<Page<Product>>;
 
   abstract findByCriteria(criteria: ProductCriteria): Promise<Page<Product>>;
 
