@@ -15,6 +15,7 @@ export class Product {
     private active: boolean = true,
     private purchaseCount: number = 0,
     private discount?: ProductDiscount,
+    private productImage?: string,
     private readonly createdAt: Date = new Date(),
     private readonly updatedAt: Date | null = null,
   ) {
@@ -62,6 +63,14 @@ export class Product {
   }
   public getUpdatedAt(): Date | null {
     return this.updatedAt;
+  }
+
+  public getProductImage(): string | undefined {
+    return this.productImage;
+  }
+
+  public updateProductImage(url: string): void {
+    this.productImage = url;
   }
 
   public getFinalPrice(): number {

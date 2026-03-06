@@ -44,6 +44,10 @@ export class ProductResponseDto {
   purchaseCount: number;
 
   @IsOptional()
+  @IsString()
+  productImage?: string | null;
+
+  @IsOptional()
   @IsNumber()
   averageRating: number | null;
 

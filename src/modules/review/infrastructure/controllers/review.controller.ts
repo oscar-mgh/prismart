@@ -9,8 +9,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUser } from 'src/modules/auth/infrastructure/auth/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/infrastructure/auth/guards/jwt-auth.guard';
 import { PaginatedResult, PaginationQueryDto } from 'src/modules/catalog/infrastructure/http/dtos/pagination.dto';
@@ -20,6 +23,7 @@ import { DeleteReviewUseCase } from '../../application/use-cases/delete-review.u
 import { FindReviewByIdUseCase } from '../../application/use-cases/find-review-by-id.use-case';
 import { FindReviewsByProductUseCase } from '../../application/use-cases/find-reviews-by-product.use-case';
 import { UpdateReviewUseCase } from '../../application/use-cases/update-review.use-case';
+import { UploadReviewImageUseCase } from '../../application/use-cases/upload-review-image.use-case';
 import { CreateReviewDto } from '../http/dtos/create-review.dto';
 import { ReviewResponseDto } from '../http/dtos/review-response.dto';
 import { UpdateReviewDto } from '../http/dtos/update-review.dto';
@@ -33,6 +37,7 @@ export class ReviewController {
     private readonly deleteReviewUseCase: DeleteReviewUseCase,
     private readonly findReviewsByProductUseCase: FindReviewsByProductUseCase,
     private readonly findReviewByIdUseCase: FindReviewByIdUseCase,
+    private readonly uploadReviewImageUseCase: UploadReviewImageUseCase,
   ) {}
 
   @Post()
@@ -87,6 +92,22 @@ export class ReviewController {
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ValidateObjectIdPipe) id: string): Promise<ReviewResponseDto> {
     const review = await this.findReviewByIdUseCase.execute({ id });
+    return ReviewMapper.toResponse(review);
+  }
+
+  @Post(':id/image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.OK)
+  async uploadImage(
+    @Param('id', ValidateObjectIdPipe) id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @GetUser('id') userId: string,
+  ): Promise<ReviewResponseDto> {
+    const review = await this.uploadReviewImageUseCase.execute(
+      { reviewId: id, file },
+      userId,
+    );
     return ReviewMapper.toResponse(review);
   }
 }

@@ -14,6 +14,8 @@ export class ProductDocument extends Document {
   @Prop({ required: true }) category: string;
   @Prop({ default: 0 }) purchaseCount: number;
 
+  @Prop({ required: false }) productImage?: string;
+
   @Prop({
     type: {
       code: String,

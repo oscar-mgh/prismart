@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/modules/auth/infrastructure/auth.module';
 import { EntityFinderService } from 'src/modules/shared/application/services/entity-finder.service';
+import { ImageStoragePort } from 'src/modules/shared/domain/ports/image-storage.port';
 import { StoreModule } from 'src/modules/store/infrastructure/store.module';
 import { ReviewModule } from 'src/modules/review/infrastructure/review.module';
 import { ApplyDiscountUseCase } from '../application/use-cases/apply-discount.use-case';
@@ -10,6 +11,7 @@ import { DeleteProductUseCase } from '../application/use-cases/delete-product.us
 import { FindAllProductsUseCase } from '../application/use-cases/find-all-products.use-case';
 import { FindByCriteriaUseCase } from '../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../application/use-cases/find-product-by-id.use-case';
+import { UploadProductImageUseCase } from '../application/use-cases/upload-product-image.use-case';
 import { ProductRepositoryPort } from '../domain/ports/product-repository.port';
 import { ReviewIntegrationPort } from '../domain/ports/review-integration.port';
 import { ProductController } from './controllers/product.controller';
@@ -47,6 +49,12 @@ const useCases = [
     provide: FindByCriteriaUseCase,
     inject: [ProductRepositoryPort],
     useFactory: (repo: ProductRepositoryPort) => new FindByCriteriaUseCase(repo),
+  },
+  {
+    provide: UploadProductImageUseCase,
+    inject: [ProductRepositoryPort, EntityFinderService, ImageStoragePort],
+    useFactory: (repo: ProductRepositoryPort, finder: EntityFinderService, imageStorage: ImageStoragePort) =>
+      new UploadProductImageUseCase(repo, finder, imageStorage),
   },
 ];
 

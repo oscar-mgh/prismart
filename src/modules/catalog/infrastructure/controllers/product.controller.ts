@@ -10,8 +10,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { User, UserRole } from 'src/modules/auth/domain/entities/user.entity';
 import { GetUser } from 'src/modules/auth/infrastructure/auth/decorators/get-user.decorator';
 import { Roles } from 'src/modules/auth/infrastructure/auth/decorators/roles.decorator';
@@ -25,6 +28,7 @@ import { DeleteProductUseCase } from '../../application/use-cases/delete-product
 import { FindAllProductsUseCase } from '../../application/use-cases/find-all-products.use-case';
 import { FindByCriteriaUseCase } from '../../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../../application/use-cases/find-product-by-id.use-case';
+import { UploadProductImageUseCase } from '../../application/use-cases/upload-product-image.use-case';
 import { ReviewIntegrationPort } from '../../domain/ports/review-integration.port';
 import { ApplyDiscountResponseDto } from '../http/dtos/apply-discount-response.dto';
 import { ApplyDiscountDto } from '../http/dtos/apply-discount.dto';
@@ -44,6 +48,7 @@ export class ProductController {
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly applyDiscountUseCase: ApplyDiscountUseCase,
     private readonly findByCriteriaUseCase: FindByCriteriaUseCase,
+    private readonly uploadProductImageUseCase: UploadProductImageUseCase,
     private readonly reviewIntegration: ReviewIntegrationPort,
   ) {}
 
@@ -138,5 +143,21 @@ export class ProductController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', ValidateObjectIdPipe) id: string): Promise<void> {
     return await this.deleteProductUseCase.execute({ id });
+  }
+
+  @Post(':id/image')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  @HttpCode(HttpStatus.OK)
+  async uploadImage(
+    @Param('id', ValidateObjectIdPipe) id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<ProductResponseDto> {
+    const product = await this.uploadProductImageUseCase.execute({
+      productId: id,
+      file,
+    });
+    return ProductMapper.toResponse(product);
   }
 }

@@ -9,6 +9,7 @@ export interface ProductPersistenceDto {
   readonly active: boolean;
   readonly category: string;
   readonly purchaseCount: number;
+  readonly productImage?: string;
   readonly createdAt?: Date;
   readonly updatedAt?: Date | null;
   readonly discount?: {

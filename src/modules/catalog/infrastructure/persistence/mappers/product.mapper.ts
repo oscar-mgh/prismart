@@ -24,6 +24,7 @@ export class ProductMapper {
       raw.active,
       raw.purchaseCount ?? 0,
       discount,
+      raw.productImage,
       (raw as any).createdAt ? new Date((raw as any).createdAt) : new Date(),
       (raw as any).updatedAt ? new Date((raw as any).updatedAt) : null,
     );
@@ -43,6 +44,7 @@ export class ProductMapper {
       active: domain.isActive(),
       category: domain.getCategory(),
       purchaseCount: domain.getPurchaseCount(),
+      productImage: domain.getProductImage(),
       createdAt: domain.getCreatedAt(),
       updatedAt: domain.getUpdatedAt(),
       discount: discount
@@ -71,6 +73,7 @@ export class ProductMapper {
       stock: product.getStock(),
       category: product.getCategory(),
       purchaseCount: product.getPurchaseCount(),
+      productImage: product.getProductImage() ?? null,
       averageRating: averageRating ?? null,
       discount: discount
         ? {

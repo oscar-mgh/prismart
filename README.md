@@ -23,6 +23,11 @@ MONGODB_URI=mongodb://localhost:27017/prismart
 JWT_SECRET=super-secret-key
 JWT_EXPIRES_IN=24h
 
+# Cloudinary – image upload for products and reviews
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
 # Optional, but recommended to bootstrap the super admin automatically
 SUPER_ADMIN_EMAIL=admin@prismart.local
 SUPER_ADMIN_PASSWORD=changeme123
