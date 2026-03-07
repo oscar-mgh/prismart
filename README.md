@@ -18,7 +18,7 @@ It provides JWT-based authentication with roles (`CUSTOMER`, `SALES_ADMIN`, `SUP
 Create a `.env` file in the project root with at least:
 
 ```bash
-MONGODB_URI=mongodb://localhost:27017/prismart
+MONGO_URI=mongodb://localhost:27017/prismart
 
 JWT_SECRET=super-secret-key
 JWT_EXPIRES_IN=24h

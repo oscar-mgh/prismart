@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ValidateObjectIdPipe } from 'src/modules/shared/infrastructure/pipes/validate-object-id.pipe';
 import { DisableUserUseCase } from '../../application/use-cases/disable-user.use-case';
 import { EnableUserUseCase } from '../../application/use-cases/enable-user.use-case';
@@ -7,11 +7,12 @@ import { PromoteUserToSalesAdminUseCase } from '../../application/use-cases/prom
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { UserRole } from '../../domain/entities/user.entity';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TokenService } from '../auth/services/token.service';
 import { LoginDto } from '../http/dtos/login.dto';
+import { PromoteToSalesAdminDto } from '../http/dtos/promote-to-sales-admin.dto';
 import { RegisterUserDto } from '../http/dtos/register-user.dto';
 import { UserResponseDto } from '../http/dtos/user-response.dto';
-import { PromoteToSalesAdminDto } from '../http/dtos/promote-to-sales-admin.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -41,6 +42,8 @@ export class AuthController {
   }
 
   @Post('promote')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
   async promoteToSalesAdmin(@Body() dto: PromoteToSalesAdminDto): Promise<{ token: string }> {
     const { email, username } = dto;
@@ -49,6 +52,7 @@ export class AuthController {
   }
 
   @Delete('disable/:userId')
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   async disableUser(@Param('userId', ValidateObjectIdPipe) userId: string): Promise<void> {
@@ -56,6 +60,7 @@ export class AuthController {
   }
 
   @Patch('enable/:userId')
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
   async enableUser(@Param('userId', ValidateObjectIdPipe) userId: string): Promise<void> {

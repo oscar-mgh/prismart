@@ -23,9 +23,9 @@ export class OrderController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateOrderDto, @GetUser() user: User): Promise<OrderResponseDto> {
+  async create(@Body() dto: CreateOrderDto, @GetUser('id') userId: string): Promise<OrderResponseDto> {
     const order = await this.createOrderUseCase.execute({
-      customerId: user.id.toString(),
+      customerId: userId,
       items: dto.items,
     });
     return OrderMapper.toResponse(order);
@@ -33,8 +33,11 @@ export class OrderController {
 
   @Get('customer/:customerId')
   @HttpCode(HttpStatus.OK)
-  async findCustomerOrders(@Param('customerId', ValidateObjectIdPipe) customerId: string): Promise<OrderResponseDto[]> {
-    const orders = await this.getCustomerOrdersUseCase.execute({ customerId });
+  async findCustomerOrders(
+    @Param('customerId', ValidateObjectIdPipe) customerId: string,
+    @GetUser('id') userId: string,
+  ): Promise<OrderResponseDto[]> {
+    const orders = await this.getCustomerOrdersUseCase.execute({ customerId, userId });
     return orders.map((order) => OrderMapper.toResponse(order));
   }
 
@@ -50,7 +53,7 @@ export class OrderController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async cancel(@Param('id', ValidateObjectIdPipe) id: string, @GetUser() user: User): Promise<void> {
-    await this.cancelOrderUseCase.execute({ orderId: id, userId: user.id.toString() });
+  async cancel(@Param('id', ValidateObjectIdPipe) id: string, @GetUser('id') userId: string): Promise<void> {
+    await this.cancelOrderUseCase.execute({ orderId: id, userId });
   }
 }

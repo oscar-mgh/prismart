@@ -89,7 +89,7 @@ export class Product {
   }
 
   public updateStock(newQuantity: number) {
-    if (newQuantity <= 0) throw new Error('Wrong stock quantity');
+    if (newQuantity < 0) throw new Error('Wrong stock quantity');
     this.stock = newQuantity;
   }
 
