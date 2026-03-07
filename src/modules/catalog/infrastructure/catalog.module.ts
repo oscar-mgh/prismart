@@ -1,10 +1,11 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/modules/auth/infrastructure/auth.module';
+import { CatalogIntegrationPort } from 'src/modules/review/domain/ports/catalog-integration.port';
+import { ReviewModule } from 'src/modules/review/infrastructure/review.module';
 import { EntityFinderService } from 'src/modules/shared/application/services/entity-finder.service';
 import { ImageStoragePort } from 'src/modules/shared/domain/ports/image-storage.port';
 import { StoreModule } from 'src/modules/store/infrastructure/store.module';
-import { ReviewModule } from 'src/modules/review/infrastructure/review.module';
 import { ApplyDiscountUseCase } from '../application/use-cases/apply-discount.use-case';
 import { CreateProductUseCase } from '../application/use-cases/create-product.use-case';
 import { DeleteProductUseCase } from '../application/use-cases/delete-product.use-case';
@@ -14,8 +15,9 @@ import { FindProductByIdUseCase } from '../application/use-cases/find-product-by
 import { UploadProductImageUseCase } from '../application/use-cases/upload-product-image.use-case';
 import { ProductRepositoryPort } from '../domain/ports/product-repository.port';
 import { ReviewIntegrationPort } from '../domain/ports/review-integration.port';
-import { ProductController } from './controllers/product.controller';
+import { CatalogIntegrationAdapter } from './adapters/catalog-integration.adapter';
 import { ReviewIntegrationAdapter } from './adapters/review-integration.adapter';
+import { ProductController } from './controllers/product.controller';
 import { ProductDocument, ProductSchema } from './persistence/entities/product.schema';
 import { MongooseProductRepository } from './persistence/repositories/mongoose-product.repository';
 
@@ -70,6 +72,7 @@ const useCases = [
       provide: ProductRepositoryPort,
       useClass: MongooseProductRepository,
     },
+    { provide: CatalogIntegrationPort, useClass: CatalogIntegrationAdapter },
     {
       provide: ReviewIntegrationPort,
       useClass: ReviewIntegrationAdapter,
@@ -77,6 +80,6 @@ const useCases = [
     ...useCases,
   ],
   controllers: [ProductController],
-  exports: [ProductRepositoryPort],
+  exports: [ProductRepositoryPort, MongooseModule],
 })
 export class CatalogModule {}

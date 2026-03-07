@@ -17,6 +17,7 @@ export class CreateOrderUseCase {
     const { customerId, items } = command;
     const productIds = items.map((item) => item.productId);
     const productsInfo = await this.catalogIntegration.getProductsInfo(productIds);
+
     const orderItems = items.map((item) => {
       const info = productsInfo.find((p) => p.productId === item.productId);
 
@@ -24,19 +25,19 @@ export class CreateOrderUseCase {
         throw new NotFoundException(`Product ${item.productId} not found`);
       }
 
-      if (info.availableStock < item.quantity) {
-        throw new BadRequestException(`Insufficient stock for product: ${info.name}`);
-      }
-
       return new OrderItem(info.productId, info.name, info.price, item.quantity);
     });
 
+    for (const item of items) {
+      const success = await this.catalogIntegration.updateStockAndPurchaseCount(item.productId, item.quantity);
+
+      if (!success) {
+        throw new BadRequestException(`Insufficient stock for product ID: ${item.productId}`);
+      }
+    }
+
     const order = new Order(Id.create(), customerId, orderItems);
     const savedOrder = await this.orderRepository.save(order);
-
-    for (const item of items) {
-      await this.catalogIntegration.updateStockAndPurchaseCount(item.productId, item.quantity);
-    }
 
     return savedOrder;
   }

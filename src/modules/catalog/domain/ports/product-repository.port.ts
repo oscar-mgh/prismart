@@ -14,7 +14,7 @@ export interface ProductCriteria {
 export type DiscountData = { code: string; percentage: number; expirationDate: Date };
 
 export abstract class ProductRepositoryPort {
-  abstract save(product: Product): Promise<Product>;
+  abstract save(product: Product, session?: any): Promise<Product>;
 
   abstract saveMany(products: Product[]): Promise<void>;
 
@@ -22,7 +22,7 @@ export abstract class ProductRepositoryPort {
 
   abstract findByCriteria(criteria: ProductCriteria): Promise<Page<Product>>;
 
-  abstract findById(id: string): Promise<Product | null>;
+  abstract findById(id: string, session?: any): Promise<Product | null>;
 
   abstract delete(id: string): Promise<void>;
 
