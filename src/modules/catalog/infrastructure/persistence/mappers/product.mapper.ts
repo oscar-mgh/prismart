@@ -13,8 +13,8 @@ export class ProductMapper {
       : undefined;
 
     return new Product(
-      new Id(raw._id.toString()),
-      new Id(raw.storeId.toString()),
+      Id.fromString(raw._id.toString()),
+      Id.fromString(raw.storeId.toString()),
       new Sku(raw.sku),
       raw.name,
       raw.description,

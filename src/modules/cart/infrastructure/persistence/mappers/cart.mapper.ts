@@ -9,7 +9,7 @@ export class CartMapper {
   static toDomain(doc: CartDocument): Cart {
     const items = doc.items.map((item) => new CartItem(item.productId, item.quantity));
 
-    return new Cart(new Id(doc._id.toString()), doc.userId, items);
+    return new Cart(Id.fromString(doc._id.toString()), doc.userId, items);
   }
 
   static toPersistence(cart: Cart): CartPersistenceDto {

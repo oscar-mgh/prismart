@@ -9,7 +9,7 @@ export class OrderMapper {
     const items = doc.items.map((i) => new OrderItem(i.productId, i.productName, i.unitPrice, i.quantity));
 
     return new Order(
-      Id.create(doc._id.toString()),
+      Id.fromString(doc._id.toString()),
       doc.customerId,
       items,
       doc.status as any,

@@ -16,9 +16,9 @@ export class StoreMapper {
     });
 
     return new Store(
-      new Id(raw._id.toString()),
+      Id.fromString(raw._id.toString()),
       raw.name,
-      raw.adminIds.map((id) => new Id(id)),
+      raw.adminIds.map((id) => Id.fromString(id)),
       address,
       raw.active,
       raw.createdAt,

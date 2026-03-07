@@ -6,6 +6,7 @@ import { Store } from '../../domain/entities/store.entity';
 import { StoreRepositoryPort } from '../../domain/ports/store-repository.port';
 import { Address } from '../../domain/value-objects/address.vo';
 import { CreateStoreCommand } from './commands/create-store.command';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 
 @Injectable()
 export class CreateStoreUseCase {
@@ -42,8 +43,8 @@ export class CreateStoreUseCase {
       country: command.address.country,
     });
 
-    const storeId = existingStoreId ?? Id.create();
-    const store = new Store(storeId, command.name, [new Id(userId)], address, true, new Date(), new Date());
+    const storeId = existingStoreId ?? Id.fromString(IdGenerator.next().getValue());
+    const store = new Store(storeId, command.name, [Id.fromString(userId)], address, true, new Date(), new Date());
 
     if (!existingStoreId) {
       user.assignStore(storeId);

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { Order } from '../../domain/entities/order.entity';
 import { CatalogIntegrationPort } from '../../domain/ports/catalog-integration.port';
 import { OrderRepositoryPort } from '../../domain/ports/order-repository.port';
@@ -36,7 +37,7 @@ export class CreateOrderUseCase {
       }
     }
 
-    const order = new Order(Id.create(), customerId, orderItems);
+    const order = new Order(Id.fromString(IdGenerator.next().getValue()), customerId, orderItems);
     const savedOrder = await this.orderRepository.save(order);
 
     return savedOrder;

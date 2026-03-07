@@ -4,6 +4,7 @@ import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { Cart } from '../../domain/entities/cart.entity';
 import { CartRepositoryPort } from '../../domain/ports/cart-repository.port';
 import { AddToCartCommand } from './commands/add-to-cart.command';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 
 @Injectable()
 export class AddToCartUseCase {
@@ -23,7 +24,7 @@ export class AddToCartUseCase {
 
     let cart = await this.cartRepository.findByUserId(userId);
     if (!cart) {
-      cart = new Cart(new Id(), userId, []);
+      cart = new Cart(Id.fromString(IdGenerator.next().getValue()), userId, []);
     }
 
     cart.updateProductQuantity(productId, quantity);

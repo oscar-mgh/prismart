@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { Product } from '../../domain/entities/product.entity';
 import { ProductRepositoryPort } from '../../domain/ports/product-repository.port';
 import { ProductDiscount } from '../../domain/value-objects/product-discount.vo';
@@ -21,8 +22,8 @@ export class CreateProductUseCase {
     }
 
     const product = new Product(
-      Id.create(),
-      new Id(storeId),
+      Id.fromString(IdGenerator.next().getValue()),
+      Id.fromString(storeId),
       new Sku(sku),
       name,
       description,

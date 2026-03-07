@@ -6,6 +6,7 @@ import { Review } from 'src/modules/review/domain/entities/review.entity';
 import { ReviewRepositoryPort } from 'src/modules/review/domain/ports/review-repository.port';
 import { ReviewRating } from 'src/modules/review/domain/value-objects/review-rating.vo';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { Store } from 'src/modules/store/domain/entities/store.entity';
 import { StoreRepositoryPort } from 'src/modules/store/domain/ports/store-repository.port';
 import { Address } from 'src/modules/store/domain/value-objects/address.vo';
@@ -23,7 +24,9 @@ export class SeedService {
     private readonly reviewRepository: ReviewRepositoryPort,
   ) {}
 
-  async execute(userId: string): Promise<{ storeId: string; storeName: string; productsCreated: number; reviewsCreated: number }> {
+  async execute(
+    userId: string,
+  ): Promise<{ storeId: string; storeName: string; productsCreated: number; reviewsCreated: number }> {
     const nameExists = await this.storeRepository.existsByName(SEED_STORE.name);
     if (nameExists) {
       throw new ConflictException(`Seed store "${SEED_STORE.name}" already exists. Delete it first to re-seed.`);
@@ -31,10 +34,10 @@ export class SeedService {
 
     this.logger.log('Creating seed store...');
 
-    const storeId = Id.create();
+    const storeId = Id.fromString(IdGenerator.next().getValue());
     const address = new Address(SEED_STORE.address);
 
-    const store = new Store(storeId, SEED_STORE.name, [new Id(userId)], address, true, new Date(), new Date());
+    const store = new Store(storeId, SEED_STORE.name, [Id.fromString(userId)], address, true, new Date(), new Date());
 
     await this.storeRepository.save(store);
     this.logger.log(`Store created: ${storeId.toString()}`);
@@ -43,7 +46,18 @@ export class SeedService {
 
     const products = SEED_PRODUCTS.map(
       (p) =>
-        new Product(Id.create(), storeId, new Sku(p.sku), p.name, p.description, p.price, p.stock, p.category, true, Math.floor(Math.random() * 25) + 3),
+        new Product(
+          Id.fromString(IdGenerator.next().getValue()),
+          storeId,
+          new Sku(p.sku),
+          p.name,
+          p.description,
+          p.price,
+          p.stock,
+          p.category,
+          true,
+          Math.floor(Math.random() * 25) + 3,
+        ),
     );
 
     await this.productRepository.saveMany(products);
@@ -58,13 +72,14 @@ export class SeedService {
 
       for (let i = 0; i < reviewCount; i++) {
         const template = SEED_REVIEW_TEMPLATES[Math.floor(Math.random() * SEED_REVIEW_TEMPLATES.length)];
-        const rating = SeedService.VALID_SEED_RATINGS[Math.floor(Math.random() * SeedService.VALID_SEED_RATINGS.length)];
+        const rating =
+          SeedService.VALID_SEED_RATINGS[Math.floor(Math.random() * SeedService.VALID_SEED_RATINGS.length)];
 
         reviews.push(
           new Review(
-            Id.create(),
+            Id.fromString(IdGenerator.next().getValue()),
             product.id,
-            Id.create(),
+            Id.fromString(IdGenerator.next().getValue()),
             template.title,
             template.description,
             new ReviewRating(rating),
@@ -84,4 +99,3 @@ export class SeedService {
     };
   }
 }
-

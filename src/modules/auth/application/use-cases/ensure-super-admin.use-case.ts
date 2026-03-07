@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Email } from 'src/modules/auth/domain/value-objects/email.vo';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { User, UserRole } from '../../domain/entities/user.entity';
 import { PasswordHasherPort } from '../../domain/ports/password-hasher.port';
 import { UserRepositoryPort } from '../../domain/ports/user-repository.port';
@@ -38,7 +39,7 @@ export class EnsureSuperAdminUseCase {
     const username = this.configService.get<string>('SUPER_ADMIN_USERNAME')?.trim() || 'superadmin';
 
     const superAdmin = new User(
-      Id.create(),
+      Id.fromString(IdGenerator.next().getValue()),
       username,
       new Email(email),
       hashedPassword,
@@ -52,4 +53,3 @@ export class EnsureSuperAdminUseCase {
     this.logger.log(`Super admin user with email ${email} has been created.`);
   }
 }
-

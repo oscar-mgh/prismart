@@ -7,13 +7,13 @@ import { UserDocument } from '../entities/user.schema';
 export class UserMapper {
   static toDomain(raw: UserDocument): User {
     return new User(
-      new Id(raw._id.toString()),
+      Id.fromString(raw._id.toString()),
       raw.username,
       new Email(raw.email),
       raw.password,
       raw.role,
       raw.active,
-      raw.storeId ? new Id(raw.storeId.toString()) : undefined,
+      raw.storeId ? Id.fromString(raw.storeId.toString()) : undefined,
     );
   }
 

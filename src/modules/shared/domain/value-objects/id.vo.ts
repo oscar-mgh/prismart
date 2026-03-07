@@ -1,13 +1,19 @@
-import { Types, isValidObjectId } from 'mongoose';
-
 export class Id {
   private readonly value: string;
 
-  constructor(value?: string) {
-    if (value && !isValidObjectId(value)) {
+  private constructor(value: string) {
+    if (!Id.isValid(value)) {
       throw new Error('Invalid Domain ID format');
     }
-    this.value = value || new Types.ObjectId().toHexString();
+    this.value = value;
+  }
+
+  private static isValid(value: string): boolean {
+    return /^[a-fA-F0-9]{24}$/.test(value);
+  }
+
+  public static fromString(value: string): Id {
+    return new Id(value);
   }
 
   public getValue(): string {
@@ -20,9 +26,5 @@ export class Id {
 
   public equals(other: Id): boolean {
     return this.value === other.getValue();
-  }
-
-  public static create(value?: string): Id {
-    return new Id(value);
   }
 }

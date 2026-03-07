@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { BusinessRuleViolationException } from 'src/modules/shared/domain/exceptions/domain.exceptions';
+import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { Review } from '../../domain/entities/review.entity';
-import { ReviewRating } from '../../domain/value-objects/review-rating.vo';
-import { ReviewRepositoryPort } from '../../domain/ports/review-repository.port';
 import { CatalogIntegrationPort } from '../../domain/ports/catalog-integration.port';
+import { ReviewRepositoryPort } from '../../domain/ports/review-repository.port';
+import { ReviewRating } from '../../domain/value-objects/review-rating.vo';
 import { CreateReviewCommand } from './commands/create-review.command';
 
 @Injectable()
@@ -30,9 +31,9 @@ export class CreateReviewUseCase {
     }
 
     const review = new Review(
-      Id.create(),
-      new Id(productId),
-      new Id(userId),
+      Id.fromString(IdGenerator.next().getValue()),
+      Id.fromString(productId),
+      Id.fromString(userId),
       title,
       description,
       new ReviewRating(rating),

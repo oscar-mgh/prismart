@@ -8,9 +8,9 @@ import { ReviewResponseDto } from '../../http/dtos/review-response.dto';
 export class ReviewMapper {
   static toDomain(raw: ReviewDocument): Review {
     return new Review(
-      new Id(raw._id.toString()),
-      new Id(raw.productId),
-      new Id(raw.userId),
+      Id.fromString(raw._id.toString()),
+      Id.fromString(raw.productId),
+      Id.fromString(raw.userId),
       raw.title,
       raw.description,
       new ReviewRating(raw.rating),

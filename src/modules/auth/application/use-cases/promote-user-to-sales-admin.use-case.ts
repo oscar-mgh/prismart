@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
+import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { User, UserRole } from '../../domain/entities/user.entity';
 import { UserRepositoryPort } from '../../domain/ports/user-repository.port';
 import { Email } from '../../domain/value-objects/email.vo';
@@ -19,7 +20,7 @@ export class PromoteUserToSalesAdminUseCase {
 
     if (existingUser) {
       if (!existingUser.getStoreId()) {
-        const storeId = Id.create();
+        const storeId = Id.fromString(IdGenerator.next().getValue());
         existingUser.assignStore(storeId);
       } else if (existingUser.getRole() !== UserRole.SALES_ADMIN) {
         existingUser.promoteToSalesAdmin();
@@ -31,10 +32,10 @@ export class PromoteUserToSalesAdminUseCase {
       return { token: token.access_token };
     }
 
-    const storeId = Id.create();
+    const storeId = Id.fromString(IdGenerator.next().getValue());
 
     const tempUser = new User(
-      Id.create(),
+      Id.fromString(IdGenerator.next().getValue()),
       command.username,
       new Email(command.email),
       'temporary-password',
