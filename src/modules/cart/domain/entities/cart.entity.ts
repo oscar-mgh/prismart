@@ -39,7 +39,8 @@ export class Cart {
     const index = this.items.findIndex((item) => item.getProductId() === productId);
 
     if (index >= 0) {
-      this.items[index] = new CartItem(productId, newQuantity);
+      const currentQuantity = this.items[index].getQuantity();
+      this.items[index] = new CartItem(productId, currentQuantity + newQuantity);
     } else {
       this.items.push(new CartItem(productId, newQuantity));
     }
