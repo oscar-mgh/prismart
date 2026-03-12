@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ProductInfoPort } from 'src/modules/catalog/domain/ports/product-info.port';
 import { CatalogModule } from 'src/modules/catalog/infrastructure/catalog.module';
-import { CatalogIntegrationPort } from 'src/modules/order/domain/ports/catalog-integration.port';
 import { OrderModule } from 'src/modules/order/infrastructure/order.module';
 import { EntityFinderService } from 'src/modules/shared/application/services/entity-finder.service';
 import { AddToCartUseCase } from '../application/use-cases/add-to-cart.use-case';
@@ -18,8 +18,8 @@ import { CartDocument, CartSchema } from './persistence/schemas/cart.schema';
 const useCases = [
   {
     provide: AddToCartUseCase,
-    inject: [CartRepositoryPort, CatalogIntegrationPort],
-    useFactory: (repo: CartRepositoryPort, catalog: CatalogIntegrationPort) => new AddToCartUseCase(repo, catalog),
+    inject: [CartRepositoryPort, ProductInfoPort],
+    useFactory: (repo: CartRepositoryPort, productInfo: ProductInfoPort) => new AddToCartUseCase(repo, productInfo),
   },
   {
     provide: FindCartByUserIdUseCase,
@@ -64,3 +64,4 @@ const useCases = [
   exports: [CartRepositoryPort],
 })
 export class CartModule {}
+

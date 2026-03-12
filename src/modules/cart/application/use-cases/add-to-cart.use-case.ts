@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CatalogIntegrationPort } from 'src/modules/order/domain/ports/catalog-integration.port';
+import { ProductInfoPort } from 'src/modules/catalog/domain/ports/product-info.port';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { Cart } from '../../domain/entities/cart.entity';
 import { CartRepositoryPort } from '../../domain/ports/cart-repository.port';
@@ -10,12 +10,12 @@ import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.serv
 export class AddToCartUseCase {
   constructor(
     private readonly cartRepository: CartRepositoryPort,
-    private readonly catalogIntegration: CatalogIntegrationPort,
+    private readonly productInfo: ProductInfoPort,
   ) {}
 
   async execute(command: AddToCartCommand): Promise<Cart> {
     const { userId, productId, quantity } = command;
-    const [product] = await this.catalogIntegration.getProductsInfo([productId]);
+    const [product] = await this.productInfo.getProductsInfo([productId]);
     if (!product) throw new NotFoundException('Product not found');
 
     if (product.availableStock < quantity) {
@@ -32,3 +32,4 @@ export class AddToCartUseCase {
     return await this.cartRepository.save(cart);
   }
 }
+

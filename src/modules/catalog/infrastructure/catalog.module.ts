@@ -13,9 +13,11 @@ import { FindAllProductsUseCase } from '../application/use-cases/find-all-produc
 import { FindByCriteriaUseCase } from '../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../application/use-cases/find-product-by-id.use-case';
 import { UploadProductImageUseCase } from '../application/use-cases/upload-product-image.use-case';
+import { ProductInfoPort } from '../domain/ports/product-info.port';
 import { ProductRepositoryPort } from '../domain/ports/product-repository.port';
 import { ReviewIntegrationPort } from '../domain/ports/review-integration.port';
 import { CatalogIntegrationAdapter } from './adapters/catalog-integration.adapter';
+import { ProductInfoAdapter } from './adapters/product-info.adapter';
 import { ReviewIntegrationAdapter } from './adapters/review-integration.adapter';
 import { ProductController } from './controllers/product.controller';
 import { ProductDocument, ProductSchema } from './persistence/entities/product.schema';
@@ -73,6 +75,7 @@ const useCases = [
       useClass: MongooseProductRepository,
     },
     { provide: CatalogIntegrationPort, useClass: CatalogIntegrationAdapter },
+    { provide: ProductInfoPort, useClass: ProductInfoAdapter },
     {
       provide: ReviewIntegrationPort,
       useClass: ReviewIntegrationAdapter,
@@ -80,6 +83,6 @@ const useCases = [
     ...useCases,
   ],
   controllers: [ProductController],
-  exports: [ProductRepositoryPort, MongooseModule],
+  exports: [ProductRepositoryPort, ProductInfoPort, MongooseModule],
 })
 export class CatalogModule {}
