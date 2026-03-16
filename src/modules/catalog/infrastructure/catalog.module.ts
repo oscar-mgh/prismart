@@ -13,7 +13,7 @@ import { FindAllProductsUseCase } from '../application/use-cases/find-all-produc
 import { FindByCriteriaUseCase } from '../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../application/use-cases/find-product-by-id.use-case';
 import { UploadProductImageUseCase } from '../application/use-cases/upload-product-image.use-case';
-import { ProductInfoPort } from '../domain/ports/product-info.port';
+import { ProductInfoPort } from 'src/modules/shared/domain/ports/product-info.port';
 import { ProductRepositoryPort } from '../domain/ports/product-repository.port';
 import { ReviewIntegrationPort } from '../domain/ports/review-integration.port';
 import { CatalogIntegrationAdapter } from './adapters/catalog-integration.adapter';

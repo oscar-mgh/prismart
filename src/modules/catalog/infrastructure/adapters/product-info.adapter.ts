@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ProductRepositoryPort } from 'src/modules/catalog/domain/ports/product-repository.port';
-import { ProductInfo, ProductInfoPort } from '../../domain/ports/product-info.port';
+import { ProductInfo, ProductInfoPort } from 'src/modules/shared/domain/ports/product-info.port';
 
 @Injectable()
 export class ProductInfoAdapter implements ProductInfoPort {

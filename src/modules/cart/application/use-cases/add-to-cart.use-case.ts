@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { ProductInfoPort } from 'src/modules/catalog/domain/ports/product-info.port';
+import { ProductInfoPort } from 'src/modules/shared/domain/ports/product-info.port';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { Cart } from '../../domain/entities/cart.entity';
 import { CartRepositoryPort } from '../../domain/ports/cart-repository.port';

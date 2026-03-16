@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProductInfoPort } from 'src/modules/catalog/domain/ports/product-info.port';
+import { ProductInfoPort } from 'src/modules/shared/domain/ports/product-info.port';
 import { CatalogModule } from 'src/modules/catalog/infrastructure/catalog.module';
 import { OrderModule } from 'src/modules/order/infrastructure/order.module';
 import { EntityFinderService } from 'src/modules/shared/application/services/entity-finder.service';
