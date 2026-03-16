@@ -1,3 +1,3 @@
-export abstract class CatalogIntegrationPort {
+export abstract class ProductValidationPort {
   abstract productExists(productId: string): Promise<boolean>;
 }

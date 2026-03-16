@@ -3,7 +3,7 @@ import { BusinessRuleViolationException } from 'src/modules/shared/domain/except
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { Review } from '../../domain/entities/review.entity';
-import { CatalogIntegrationPort } from '../../domain/ports/catalog-integration.port';
+import { ProductValidationPort } from '../../domain/ports/product-validation.port';
 import { ReviewRepositoryPort } from '../../domain/ports/review-repository.port';
 import { ReviewRating } from '../../domain/value-objects/review-rating.vo';
 import { CreateReviewCommand } from './commands/create-review.command';
@@ -12,7 +12,7 @@ import { CreateReviewCommand } from './commands/create-review.command';
 export class CreateReviewUseCase {
   constructor(
     private readonly reviewRepository: ReviewRepositoryPort,
-    private readonly catalogIntegration: CatalogIntegrationPort,
+    private readonly catalogIntegration: ProductValidationPort,
   ) {}
 
   async execute(command: CreateReviewCommand, userId: string): Promise<Review> {

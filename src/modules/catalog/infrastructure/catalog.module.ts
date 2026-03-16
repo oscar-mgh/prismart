@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/modules/auth/infrastructure/auth.module';
-import { CatalogIntegrationPort } from 'src/modules/review/domain/ports/catalog-integration.port';
+import { CatalogIntegrationPort } from 'src/modules/order/domain/ports/catalog-integration.port';
 import { ReviewModule } from 'src/modules/review/infrastructure/review.module';
 import { EntityFinderService } from 'src/modules/shared/application/services/entity-finder.service';
 import { ImageStoragePort } from 'src/modules/shared/domain/ports/image-storage.port';

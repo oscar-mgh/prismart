@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ProductRepositoryPort } from 'src/modules/catalog/domain/ports/product-repository.port';
-import { CatalogIntegrationPort } from '../../domain/ports/catalog-integration.port';
+import { ProductValidationPort } from '../../domain/ports/product-validation.port';
 
 @Injectable()
-export class CatalogIntegrationAdapter extends CatalogIntegrationPort {
-  constructor(private readonly productRepository: ProductRepositoryPort) {
-    super();
-  }
+export class ProductValidationAdapter implements ProductValidationPort {
+  constructor(private readonly productRepository: ProductRepositoryPort) {}
 
   async productExists(productId: string): Promise<boolean> {
     const product = await this.productRepository.findById(productId);

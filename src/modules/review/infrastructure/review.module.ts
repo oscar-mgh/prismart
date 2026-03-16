@@ -2,16 +2,16 @@ import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/modules/auth/infrastructure/auth.module';
 import { CatalogModule } from 'src/modules/catalog/infrastructure/catalog.module';
+import { ImageStoragePort } from 'src/modules/shared/domain/ports/image-storage.port';
 import { CreateReviewUseCase } from '../application/use-cases/create-review.use-case';
 import { DeleteReviewUseCase } from '../application/use-cases/delete-review.use-case';
 import { FindReviewByIdUseCase } from '../application/use-cases/find-review-by-id.use-case';
 import { FindReviewsByProductUseCase } from '../application/use-cases/find-reviews-by-product.use-case';
 import { UpdateReviewUseCase } from '../application/use-cases/update-review.use-case';
 import { UploadReviewImageUseCase } from '../application/use-cases/upload-review-image.use-case';
-import { CatalogIntegrationPort } from '../domain/ports/catalog-integration.port';
+import { ProductValidationPort } from '../domain/ports/product-validation.port';
 import { ReviewRepositoryPort } from '../domain/ports/review-repository.port';
-import { ImageStoragePort } from 'src/modules/shared/domain/ports/image-storage.port';
-import { CatalogIntegrationAdapter } from './adapters/catalog-integration.adapter';
+import { ProductValidationAdapter } from './adapters/product-validation.adapter';
 import { ReviewController } from './controllers/review.controller';
 import { ReviewDocument, ReviewSchema } from './persistence/entities/review.schema';
 import { MongooseReviewRepository } from './persistence/repositories/mongoose-review.repository';
@@ -19,8 +19,8 @@ import { MongooseReviewRepository } from './persistence/repositories/mongoose-re
 const useCases = [
   {
     provide: CreateReviewUseCase,
-    inject: [ReviewRepositoryPort, CatalogIntegrationPort],
-    useFactory: (repo: ReviewRepositoryPort, catalogIntegration: CatalogIntegrationPort) =>
+    inject: [ReviewRepositoryPort, ProductValidationPort],
+    useFactory: (repo: ReviewRepositoryPort, catalogIntegration: ProductValidationPort) =>
       new CreateReviewUseCase(repo, catalogIntegration),
   },
   {
@@ -63,8 +63,8 @@ const useCases = [
       useClass: MongooseReviewRepository,
     },
     {
-      provide: CatalogIntegrationPort,
-      useClass: CatalogIntegrationAdapter,
+      provide: ProductValidationPort,
+      useClass: ProductValidationAdapter,
     },
     ...useCases,
   ],
