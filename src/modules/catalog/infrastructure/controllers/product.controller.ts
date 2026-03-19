@@ -33,7 +33,7 @@ import { ReviewIntegrationPort } from '../../domain/ports/review-integration.por
 import { ApplyDiscountResponseDto } from '../http/dtos/apply-discount-response.dto';
 import { ApplyDiscountDto } from '../http/dtos/apply-discount.dto';
 import { CreateProductDto } from '../http/dtos/create-product.dto';
-import { GetProductsQueryDto, ProductSortBy } from '../http/dtos/get-products-query.dto';
+import { GetProductsQueryDto } from '../http/dtos/get-products-query.dto';
 import { CriteriaQueryDto } from '../http/dtos/criteria-query.dto';
 import { PaginatedResult } from '../http/dtos/pagination.dto';
 import { ProductResponseDto } from '../http/dtos/product-response.dto';
@@ -57,37 +57,24 @@ export class ProductController {
   async findAll(@Query() query: GetProductsQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
     const { page, totalElements, totalPages, data } = await this.findAllProductsUseCase.execute(query);
 
-    const productIds = data.map((p) => p.id.getValue());
-    const ratingsMap = await this.reviewIntegration.getAverageRatings(productIds);
-
-    let responseData = data.map((product) => ProductMapper.toResponse(product, ratingsMap.get(product.id.getValue())));
-
-    if (query.sortBy === ProductSortBy.BEST_RATED) {
-      responseData = responseData.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
-    }
-
     return {
       page,
       totalPages,
       totalElements,
-      data: responseData,
+      data: data.map((item) => ProductMapper.toResponse(item.product, item.averageRating)),
     };
   }
 
   @Get('criteria')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async findByCriteria(@Query() query: CriteriaQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
     const { page, totalElements, totalPages, data } = await this.findByCriteriaUseCase.execute(query);
-
-    const productIds = data.map((p) => p.id.getValue());
-    const ratingsMap = await this.reviewIntegration.getAverageRatings(productIds);
 
     return {
       page,
       totalPages,
       totalElements,
-      data: data.map((product) => ProductMapper.toResponse(product, ratingsMap.get(product.id.getValue()))),
+      data: data.map((item) => ProductMapper.toResponse(item.product, item.averageRating)),
     };
   }
 

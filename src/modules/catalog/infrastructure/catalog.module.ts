@@ -36,8 +36,9 @@ const useCases = [
   },
   {
     provide: FindAllProductsUseCase,
-    inject: [ProductRepositoryPort],
-    useFactory: (repo: ProductRepositoryPort) => new FindAllProductsUseCase(repo),
+    inject: [ProductRepositoryPort, ReviewIntegrationPort],
+    useFactory: (repo: ProductRepositoryPort, reviewIntegration: ReviewIntegrationPort) =>
+      new FindAllProductsUseCase(repo, reviewIntegration),
   },
   {
     provide: FindProductByIdUseCase,
@@ -51,8 +52,9 @@ const useCases = [
   },
   {
     provide: FindByCriteriaUseCase,
-    inject: [ProductRepositoryPort],
-    useFactory: (repo: ProductRepositoryPort) => new FindByCriteriaUseCase(repo),
+    inject: [ProductRepositoryPort, ReviewIntegrationPort],
+    useFactory: (repo: ProductRepositoryPort, reviewIntegration: ReviewIntegrationPort) =>
+      new FindByCriteriaUseCase(repo, reviewIntegration),
   },
   {
     provide: UploadProductImageUseCase,
