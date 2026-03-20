@@ -32,6 +32,11 @@ export class MongooseOrderRepository implements OrderRepositoryPort {
     const docs = await this.orderModel.find({ customerId }).exec();
     return docs.map((doc) => OrderMapper.toDomain(doc));
   }
+
+  async findAll(): Promise<Order[]> {
+    const docs = await this.orderModel.find().exec();
+    return docs.map((doc) => OrderMapper.toDomain(doc));
+  }
   async startTransaction(): Promise<any> {
     const session = await this.orderModel.db.startSession();
     session.startTransaction();

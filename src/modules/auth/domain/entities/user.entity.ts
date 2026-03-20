@@ -4,6 +4,7 @@ import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
   SALES_ADMIN = 'SALES_ADMIN',
+  SUPPORT = 'SUPPORT',
   CUSTOMER = 'CUSTOMER',
 }
 
@@ -46,7 +47,7 @@ export class User {
   }
 
   public assignStore(storeId: Id): void {
-    if (this.role === UserRole.SUPER_ADMIN) {
+    if (this.role === UserRole.SUPER_ADMIN || this.role === UserRole.SUPPORT) {
       return;
     }
 

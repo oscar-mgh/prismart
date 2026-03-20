@@ -5,6 +5,7 @@ import { ProductDocument, ProductSchema } from 'src/modules/catalog/infrastructu
 import { CatalogIntegrationAdapter } from '../../catalog/infrastructure/adapters/catalog-integration.adapter';
 import { CancelOrderUseCase } from '../application/use-cases/cancel-order.use-case';
 import { CreateOrderUseCase } from '../application/use-cases/create-order.use-case';
+import { GetAllCustomerOrdersUseCase } from '../application/use-cases/get-all-customers-orders.use-case';
 import { GetCustomerOrdersUseCase } from '../application/use-cases/get-customer-orders.use-case';
 import { GetOrderUseCase } from '../application/use-cases/get-order.use-case';
 import { CatalogIntegrationPort } from '../domain/ports/catalog-integration.port';
@@ -33,6 +34,11 @@ const useCases = [
     provide: CancelOrderUseCase,
     useFactory: (repo: OrderRepositoryPort, catalog: CatalogIntegrationPort) => new CancelOrderUseCase(repo, catalog),
     inject: [OrderRepositoryPort, CatalogIntegrationPort],
+  },
+  {
+    provide: GetAllCustomerOrdersUseCase,
+    useFactory: (repo: OrderRepositoryPort) => new GetAllCustomerOrdersUseCase(repo),
+    inject: [OrderRepositoryPort],
   },
 ];
 

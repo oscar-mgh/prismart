@@ -7,6 +7,8 @@ export abstract class OrderRepositoryPort {
 
   abstract findByCustomerId(customerId: string): Promise<Order[]>;
 
+  abstract findAll(): Promise<Order[]>;
+
   abstract startTransaction(): Promise<any>;
 
   abstract commitTransaction(session: any): Promise<void>;

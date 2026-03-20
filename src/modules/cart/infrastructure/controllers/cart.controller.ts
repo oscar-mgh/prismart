@@ -15,7 +15,7 @@ import { CartMapper } from '../persistence/mappers/cart.mapper';
 
 @Controller('cart')
 @UseGuards(JwtAuthGuard)
-@Roles(UserRole.CUSTOMER, UserRole.SALES_ADMIN)
+@Roles(UserRole.CUSTOMER, UserRole.SALES_ADMIN, UserRole.SUPPORT)
 export class CartController {
   constructor(
     private readonly addToCartUseCase: AddToCartUseCase,
