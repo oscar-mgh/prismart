@@ -111,6 +111,10 @@ export class MongooseProductRepository implements ProductRepositoryPort {
     return products.length;
   }
 
+  async findAllCategories(): Promise<string[]> {
+    return this.productModel.distinct('category', { active: true }).exec();
+  }
+
   private buildSortOptions(sortBy?: string): Record<string, SortOrder> {
     switch (sortBy) {
       case 'price_high':

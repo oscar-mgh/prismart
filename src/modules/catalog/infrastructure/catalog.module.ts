@@ -10,6 +10,7 @@ import { ApplyDiscountUseCase } from '../application/use-cases/apply-discount.us
 import { CreateProductUseCase } from '../application/use-cases/create-product.use-case';
 import { DeleteProductUseCase } from '../application/use-cases/delete-product.use-case';
 import { FindAllProductsUseCase } from '../application/use-cases/find-all-products.use-case';
+import { GetAllCategoriesUseCase } from '../application/use-cases/get-all-categories.use-case';
 import { FindByCriteriaUseCase } from '../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../application/use-cases/find-product-by-id.use-case';
 import { UploadProductImageUseCase } from '../application/use-cases/upload-product-image.use-case';
@@ -61,6 +62,11 @@ const useCases = [
     inject: [ProductRepositoryPort, EntityFinderService, ImageStoragePort],
     useFactory: (repo: ProductRepositoryPort, finder: EntityFinderService, imageStorage: ImageStoragePort) =>
       new UploadProductImageUseCase(repo, finder, imageStorage),
+  },
+  {
+    provide: GetAllCategoriesUseCase,
+    inject: [ProductRepositoryPort],
+    useFactory: (repo: ProductRepositoryPort) => new GetAllCategoriesUseCase(repo),
   },
 ];
 

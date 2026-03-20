@@ -27,4 +27,6 @@ export abstract class ProductRepositoryPort {
   abstract delete(id: string): Promise<void>;
 
   abstract applyDiscount(criteria: ProductCriteria, discountData: DiscountData): Promise<number>;
+
+  abstract findAllCategories(): Promise<string[]>;
 }

@@ -26,6 +26,7 @@ import { ApplyDiscountCommand } from '../../application/use-cases/commands/apply
 import { CreateProductUseCase } from '../../application/use-cases/create-product.use-case';
 import { DeleteProductUseCase } from '../../application/use-cases/delete-product.use-case';
 import { FindAllProductsUseCase } from '../../application/use-cases/find-all-products.use-case';
+import { GetAllCategoriesUseCase } from '../../application/use-cases/get-all-categories.use-case';
 import { FindByCriteriaUseCase } from '../../application/use-cases/find-by-criteria-use-case';
 import { FindProductByIdUseCase } from '../../application/use-cases/find-product-by-id.use-case';
 import { UploadProductImageUseCase } from '../../application/use-cases/upload-product-image.use-case';
@@ -50,7 +51,14 @@ export class ProductController {
     private readonly findByCriteriaUseCase: FindByCriteriaUseCase,
     private readonly uploadProductImageUseCase: UploadProductImageUseCase,
     private readonly reviewIntegration: ReviewIntegrationPort,
+    private readonly getAllCategoriesUseCase: GetAllCategoriesUseCase,
   ) {}
+
+  @Get('categories')
+  @HttpCode(HttpStatus.OK)
+  async findAllCategories(): Promise<string[]> {
+    return this.getAllCategoriesUseCase.execute();
+  }
 
   @Get()
   @HttpCode(HttpStatus.OK)
