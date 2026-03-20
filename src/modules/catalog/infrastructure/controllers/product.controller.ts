@@ -15,6 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User, UserRole } from 'src/modules/auth/domain/entities/user.entity';
 import { GetUser } from 'src/modules/auth/infrastructure/auth/decorators/get-user.decorator';
 import { Roles } from 'src/modules/auth/infrastructure/auth/decorators/roles.decorator';
@@ -40,6 +41,7 @@ import { PaginatedResult } from '../http/dtos/pagination.dto';
 import { ProductResponseDto } from '../http/dtos/product-response.dto';
 import { ProductMapper } from '../persistence/mappers/product.mapper';
 
+@ApiTags('Products')
 @Controller('products')
 export class ProductController {
   constructor(
@@ -55,12 +57,16 @@ export class ProductController {
   ) {}
 
   @Get('categories')
+  @ApiOperation({ summary: 'Get all product categories' })
+  @ApiResponse({ status: 200, description: 'List of distinct category names', type: [String] })
   @HttpCode(HttpStatus.OK)
   async findAllCategories(): Promise<string[]> {
     return this.getAllCategoriesUseCase.execute();
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all products (paginated)' })
+  @ApiResponse({ status: 200, description: 'Paginated list of products' })
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: GetProductsQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
     const { page, totalElements, totalPages, data } = await this.findAllProductsUseCase.execute(query);
@@ -74,6 +80,8 @@ export class ProductController {
   }
 
   @Get('criteria')
+  @ApiOperation({ summary: 'Search products by criteria (category, SKUs, IDs, etc.)' })
+  @ApiResponse({ status: 200, description: 'Paginated list of products matching criteria' })
   @HttpCode(HttpStatus.OK)
   async findByCriteria(@Query() query: CriteriaQueryDto): Promise<PaginatedResult<ProductResponseDto>> {
     const { page, totalElements, totalPages, data } = await this.findByCriteriaUseCase.execute(query);
@@ -87,6 +95,11 @@ export class ProductController {
   }
 
   @Get(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a product by ID' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'Product found', type: ProductResponseDto })
+  @ApiResponse({ status: 404, description: 'Product not found' })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ValidateObjectIdPipe) id: string): Promise<ProductResponseDto> {
@@ -96,6 +109,12 @@ export class ProductController {
   }
 
   @Post()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new product (SALES_ADMIN / SUPER_ADMIN)' })
+  @ApiResponse({ status: 201, description: 'Product created', type: ProductResponseDto })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 403, description: 'Forbidden — user must have a store' })
+  @ApiResponse({ status: 409, description: 'SKU already exists' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.CREATED)
@@ -106,6 +125,11 @@ export class ProductController {
   }
 
   @Patch('apply-discount')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Apply a discount to products by criteria (SALES_ADMIN / SUPER_ADMIN)' })
+  @ApiResponse({ status: 200, description: 'Discount applied', type: ApplyDiscountResponseDto })
+  @ApiResponse({ status: 400, description: 'Validation error' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
@@ -133,6 +157,12 @@ export class ProductController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a product (SALES_ADMIN / SUPER_ADMIN)' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiResponse({ status: 204, description: 'Product deleted' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -141,6 +171,13 @@ export class ProductController {
   }
 
   @Post(':id/image')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload a product image (SALES_ADMIN / SUPER_ADMIN)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'Image uploaded', type: ProductResponseDto })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SALES_ADMIN, UserRole.SUPER_ADMIN)
   @UseInterceptors(FileInterceptor('file'))

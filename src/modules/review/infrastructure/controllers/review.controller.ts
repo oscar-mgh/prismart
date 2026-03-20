@@ -14,6 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/modules/auth/infrastructure/auth/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/infrastructure/auth/guards/jwt-auth.guard';
 import { PaginatedResult, PaginationQueryDto } from 'src/modules/catalog/infrastructure/http/dtos/pagination.dto';
@@ -29,6 +30,7 @@ import { ReviewResponseDto } from '../http/dtos/review-response.dto';
 import { UpdateReviewDto } from '../http/dtos/update-review.dto';
 import { ReviewMapper } from '../persistence/mappers/review.mapper';
 
+@ApiTags('Reviews')
 @Controller('reviews')
 export class ReviewController {
   constructor(
@@ -41,6 +43,10 @@ export class ReviewController {
   ) {}
 
   @Post()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new review' })
+  @ApiResponse({ status: 201, description: 'Review created', type: ReviewResponseDto })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateReviewDto, @GetUser('id') userId: string): Promise<ReviewResponseDto> {
@@ -49,6 +55,12 @@ export class ReviewController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a review' })
+  @ApiParam({ name: 'id', description: 'Review ID' })
+  @ApiResponse({ status: 200, description: 'Review updated', type: ReviewResponseDto })
+  @ApiResponse({ status: 403, description: 'Forbidden — can only update own reviews' })
+  @ApiResponse({ status: 404, description: 'Review not found' })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async update(
@@ -61,6 +73,12 @@ export class ReviewController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a review' })
+  @ApiParam({ name: 'id', description: 'Review ID' })
+  @ApiResponse({ status: 204, description: 'Review deleted' })
+  @ApiResponse({ status: 403, description: 'Forbidden — can only delete own reviews' })
+  @ApiResponse({ status: 404, description: 'Review not found' })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', ValidateObjectIdPipe) id: string, @GetUser('id') userId: string): Promise<void> {
@@ -68,6 +86,9 @@ export class ReviewController {
   }
 
   @Get('product/:productId')
+  @ApiOperation({ summary: 'Get reviews for a product (paginated)' })
+  @ApiParam({ name: 'productId', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'Paginated list of reviews' })
   @HttpCode(HttpStatus.OK)
   async findByProduct(
     @Param('productId', ValidateObjectIdPipe) productId: string,
@@ -89,6 +110,10 @@ export class ReviewController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a review by ID' })
+  @ApiParam({ name: 'id', description: 'Review ID' })
+  @ApiResponse({ status: 200, description: 'Review found', type: ReviewResponseDto })
+  @ApiResponse({ status: 404, description: 'Review not found' })
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ValidateObjectIdPipe) id: string): Promise<ReviewResponseDto> {
     const review = await this.findReviewByIdUseCase.execute({ id });
@@ -96,6 +121,13 @@ export class ReviewController {
   }
 
   @Post(':id/image')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload a review image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'id', description: 'Review ID' })
+  @ApiResponse({ status: 200, description: 'Image uploaded', type: ReviewResponseDto })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 404, description: 'Review not found' })
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   @HttpCode(HttpStatus.OK)
