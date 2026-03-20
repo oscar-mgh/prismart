@@ -15,24 +15,48 @@ It provides JWT-based authentication with roles (`CUSTOMER`, `SALES_ADMIN`, `SUP
 
 ### Environment variables
 
-Create a `.env` file in the project root with at least:
+Copy the template and fill in the values:
 
 ```bash
+cp .env.template .env
+```
+
+#### Quick example
+
+```bash
+API_PORT=3000
+
 MONGO_URI=mongodb://localhost:27017/prismart
 
 JWT_SECRET=super-secret-key
 JWT_EXPIRES_IN=24h
 
-# Cloudinary – image upload for products and reviews
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
-# Optional, but recommended to bootstrap the super admin automatically
+# Optional – bootstrap a SUPER_ADMIN user on startup
 SUPER_ADMIN_EMAIL=admin@prismart.local
-SUPER_ADMIN_PASSWORD=changeme123
+SUPER_ADMIN_PASSWORD=temporalpassword
 SUPER_ADMIN_USERNAME=superadmin
 ```
+
+#### Variable reference
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `API_PORT` | No | `3000` | Port on which the HTTP server listens. |
+| `MONGO_URI` | **Yes** | `mongodb://localhost:27017/prismart` | MongoDB connection string. |
+| `JWT_SECRET` | **Yes** | — | Secret key used to sign and verify JWTs. |
+| `JWT_EXPIRES_IN` | **Yes** | — | Token lifetime (e.g. `24h`, `7d`, `3600`). |
+| `CLOUDINARY_CLOUD_NAME` | **Yes** | — | Cloudinary cloud name for image uploads. |
+| `CLOUDINARY_API_KEY` | **Yes** | — | Cloudinary API key. |
+| `CLOUDINARY_API_SECRET` | **Yes** | — | Cloudinary API secret. |
+| `SUPER_ADMIN_EMAIL` | No | — | Email for the auto-bootstrapped super-admin. |
+| `SUPER_ADMIN_PASSWORD` | No | — | Password for the auto-bootstrapped super-admin. |
+| `SUPER_ADMIN_USERNAME` | No | — | Username for the auto-bootstrapped super-admin. |
+
+> **Note:** If all three `SUPER_ADMIN_*` variables are set, a `SUPER_ADMIN` user is created automatically on startup. Omit them to skip this step.
 
 ### Install dependencies
 
