@@ -1,11 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { Email } from 'src/modules/auth/domain/value-objects/email.vo';
 import { Id } from 'src/modules/shared/domain/value-objects/id.vo';
 import { IdGenerator } from 'src/modules/shared/infrastructure/id-generator.service';
 import { User, UserRole } from '../../domain/entities/user.entity';
 import { PasswordHasherPort } from '../../domain/ports/password-hasher.port';
 import { UserRepositoryPort } from '../../domain/ports/user-repository.port';
+import {
+  SUPER_ADMIN_EMAIL,
+  SUPER_ADMIN_PASSWORD,
+  SUPER_ADMIN_USERNAME,
+} from '../../infrastructure/auth.tokens';
 
 @Injectable()
 export class EnsureSuperAdminUseCase {
@@ -14,12 +18,14 @@ export class EnsureSuperAdminUseCase {
   constructor(
     private readonly userRepository: UserRepositoryPort,
     private readonly hasher: PasswordHasherPort,
-    private readonly configService: ConfigService,
+    @Inject(SUPER_ADMIN_EMAIL) private readonly superAdminEmail: string | undefined,
+    @Inject(SUPER_ADMIN_PASSWORD) private readonly superAdminPassword: string | undefined,
+    @Optional() @Inject(SUPER_ADMIN_USERNAME) private readonly superAdminUsername: string | undefined,
   ) {}
 
   async execute(): Promise<void> {
-    const email = this.configService.get<string>('SUPER_ADMIN_EMAIL')?.trim();
-    const password = this.configService.get<string>('SUPER_ADMIN_PASSWORD')?.trim();
+    const email = this.superAdminEmail?.trim();
+    const password = this.superAdminPassword?.trim();
 
     if (!email || !password) {
       this.logger.warn('SUPER_ADMIN_EMAIL or SUPER_ADMIN_PASSWORD not set. Skipping super admin bootstrap.');
@@ -29,14 +35,13 @@ export class EnsureSuperAdminUseCase {
     const existing = await this.userRepository.findByEmail(email);
 
     if (existing) {
-      // User already exists, nothing to do as requested.
       this.logger.log(`Super admin user with email ${email} already exists. Skipping creation.`);
       return;
     }
 
     const hashedPassword = await this.hasher.hash(password);
 
-    const username = this.configService.get<string>('SUPER_ADMIN_USERNAME')?.trim() || 'superadmin';
+    const username = this.superAdminUsername?.trim() || 'superadmin';
 
     const superAdmin = new User(
       Id.fromString(IdGenerator.next().getValue()),
