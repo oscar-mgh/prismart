@@ -1,7 +1,16 @@
 ## Prismart API
 
-An commerce platform (stores, catalog, cart and orders) built with NestJS, TypeScript and MongoDB (Hexagonal architecture).  
-It provides JWT-based authentication with roles (`CUSTOMER`, `SALES_ADMIN`, `SUPER_ADMIN`) and a promotion flow for turning a customer into a seller (`SALES_ADMIN`) with a system-managed `storeId`.
+A commerce platform (stores, catalog, cart, orders, and reviews) built with NestJS, TypeScript and MongoDB (Hexagonal architecture).  
+It provides JWT-based authentication with roles (`CUSTOMER`, `SALES_ADMIN`, `SUPER_ADMIN`, `SUPPORT`). A `SUPER_ADMIN` can promote users to `SALES_ADMIN` with a system-managed `storeId`.
+
+---
+
+## API base URL and docs
+
+All HTTP routes listed below are served **under the global prefix** `api/v1`.
+
+- **Example base:** `http://localhost:3000/api/v1`
+- **OpenAPI (Swagger UI):** `http://localhost:3000/api/docs`
 
 ---
 
@@ -35,6 +44,9 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
+# Optional – comma-separated allowed origins (default: *)
+CORS_ORIGIN=http://localhost:3000,http://localhost:5173
+
 # Optional – bootstrap a SUPER_ADMIN user on startup
 SUPER_ADMIN_EMAIL=admin@prismart.local
 SUPER_ADMIN_PASSWORD=temporalpassword
@@ -52,6 +64,7 @@ SUPER_ADMIN_USERNAME=superadmin
 | `CLOUDINARY_CLOUD_NAME` | **Yes** | — | Cloudinary cloud name for image uploads. |
 | `CLOUDINARY_API_KEY` | **Yes** | — | Cloudinary API key. |
 | `CLOUDINARY_API_SECRET` | **Yes** | — | Cloudinary API secret. |
+| `CORS_ORIGIN` | No | `*` | Allowed CORS origins (comma-separated) or `*`. |
 | `SUPER_ADMIN_EMAIL` | No | — | Email for the auto-bootstrapped super-admin. |
 | `SUPER_ADMIN_PASSWORD` | No | — | Password for the auto-bootstrapped super-admin. |
 | `SUPER_ADMIN_USERNAME` | No | — | Username for the auto-bootstrapped super-admin. |
@@ -74,29 +87,32 @@ npm run start:dev
 npm run start
 ```
 
-The API will be available by default at `http://localhost:3000`.
+The API will be available by default at `http://localhost:3000` (routes under `http://localhost:3000/api/v1/...`).
 
 ### Quick health check
 
 ```bash
-GET /health
+GET /api/v1/health
 ```
+
+Checks the API and MongoDB connectivity (via `@nestjs/terminus`).
 
 ---
 
 ## Authentication & Roles Flow (summary)
 
-- **Register** (`/auth/register`):
+- **Register** (`POST /api/v1/auth/register`):
   - Creates a user with role **`CUSTOMER`** and **no `storeId`**.
   - The returned JWT **does not** include `storeId`.
 
-- **Login** (`/auth/login`):
+- **Login** (`POST /api/v1/auth/login`):
   - Returns a JWT with `sub`, `email`, `role` and, if the user is `SALES_ADMIN` and has a store, also `storeId`.
 
-- **Promotion to SALES_ADMIN** (`/auth/promote`):
-  - If the user exists, it ensures the user has role `SALES_ADMIN` and assigns a `storeId` if missing.
-  - If the user does not exist, it builds a temporary (non-persisted) user with role `SALES_ADMIN` and a generated `storeId`.
-  - In both cases, the returned JWT always includes `storeId` when `role` is `SALES_ADMIN`.
+- **Promotion to SALES_ADMIN** (`POST /api/v1/auth/promote`):
+  - **Auth:** JWT required. **Roles:** **`SUPER_ADMIN` only.**
+  - If the user exists, ensures role `SALES_ADMIN` and assigns a `storeId` if missing.
+  - If the user does not exist, builds a temporary (non-persisted) user with role `SALES_ADMIN` and a generated `storeId`.
+  - Response is `{ token }` with `storeId` when the role is `SALES_ADMIN`.
 
 JWT payload examples:
 
@@ -126,6 +142,8 @@ JWT payload examples:
 
 ## Main Endpoints
 
+Paths below are relative to the API root (prefix **`/api/v1`**).
+
 ### Auth (`/auth`)
 
 - **POST `/auth/register`**
@@ -142,86 +160,131 @@ JWT payload examples:
   - **Response**: user data + `token` (JWT with `role` and, if applicable, `storeId`).
 
 - **POST `/auth/promote`**
-  - **Description**: promotes the user to `SALES_ADMIN` and returns a JWT that **always** includes `storeId` when the role is `SALES_ADMIN`.
+  - **Auth:** JWT. **Roles:** `SUPER_ADMIN` only.
   - **Body**:
     - `email: string`
-    - `username: string` (4–40 chars)  
-      - If the user already exists, `username` is only used when the user does not exist.
-  - **Response**:
-    - `{ token: string }` (JWT with `role: 'SALES_ADMIN'` and `storeId`).
+    - `username: string` (4–40 chars) — used when creating a new user; ignored for existing users except flow validation.
+  - **Response:** `{ token: string }` (JWT with `role: 'SALES_ADMIN'` and `storeId`).
 
 - **DELETE `/auth/disable/:userId`**
-  - **Roles**: `SUPER_ADMIN`
+  - **Auth:** JWT. **Roles:** `SUPER_ADMIN`
   - Disables a user.
 
 - **PATCH `/auth/enable/:userId`**
-  - **Roles**: `SUPER_ADMIN`
+  - **Auth:** JWT. **Roles:** `SUPER_ADMIN`
   - Enables a user.
 
 ### Stores (`/stores`)
 
 - **POST `/stores`**
-  - **Auth**: JWT required (any authenticated user).
+  - **Auth:** JWT (any authenticated user).
   - Uses the `userId` from the JWT as the admin of the new store.
   - If the user already has a `storeId` and a store exists for it, a conflict is thrown.
 
 - **GET `/stores/:id`**
+  - **Auth:** JWT.
   - Returns store information.
 
 - **DELETE `/stores/:id`**
-  - **Roles**: `SUPER_ADMIN`
+  - **Auth:** JWT. **Roles:** `SUPER_ADMIN`
 
-### Products (`/products`)
+### Products 
+
+- **GET `/products/categories`**
+  - Public. Returns distinct category names.
+
+- **GET `/products`**
+  - Public. Paginated catalog. Query: `page`, `limit`, optional `sortBy` (`recent`, `price_high`, `price_low`, `best_selling`, `best_rated`).  
+  - Response includes products with aggregated average rating where applicable.
+
+- **GET `/products/criteria`**
+  - Public. Filter/search: optional `ids`, `skus`, `category`, `active`, `page`, `limit`, `sortByPurchaseCount` (`asc` | `desc`).
+
+- **GET `/products/:id`**
+  - **Auth:** JWT.
+  - Single product including average rating.
 
 - **POST `/products`**
-  - **Auth**: JWT + role `SALES_ADMIN` or `SUPER_ADMIN`.
-  - Uses the `storeId` from the JWT to associate the product with the store.
+  - **Auth:** JWT. **Roles:** `SALES_ADMIN` or `SUPER_ADMIN`.
+  - Requires `storeId` on the user; associates the product with that store.
 
 - **PATCH `/products/apply-discount`**
-  - **Auth**: JWT + role `SALES_ADMIN` or `SUPER_ADMIN`.
+  - **Auth:** JWT. **Roles:** `SALES_ADMIN` or `SUPER_ADMIN`.
+  - Body targets products by criteria (`ids`, `skus`, `category`) and applies discount fields (`code`, `percentage`, `expirationDate`).
+
+- **POST `/products/:id/image`**
+  - **Auth:** JWT. **Roles:** `SALES_ADMIN` or `SUPER_ADMIN`.
+  - `multipart/form-data` field **`file`** (Cloudinary upload).
 
 - **DELETE `/products/:id`**
-  - **Auth**: JWT + role `SALES_ADMIN` or `SUPER_ADMIN`.
+  - **Auth:** JWT. **Roles:** `SALES_ADMIN` or `SUPER_ADMIN`
 
 ### Cart (`/cart`)
 
+- **Auth:** JWT. **Roles:** `CUSTOMER`, `SALES_ADMIN`, or `SUPPORT`.
+
 - **GET `/cart`**
-  - **Auth**: JWT.
   - Returns the cart of the authenticated user.
 
 - **POST `/cart/items`**
-  - **Auth**: JWT.
-  - Uses `userId` and `storeId` from the JWT to add products to the cart.
+  - Adds a line item (body per `AddItemDto`; uses authenticated `userId`).
 
 - **POST `/cart/checkout`**
-  - **Auth**: JWT.
-  - Creates an order for the current user in the store indicated by `storeId`.
+  - Creates an order from the current cart (HTTP 201).
+
+- **DELETE `/cart`**
+  - Deletes the authenticated user’s cart (HTTP 204).
 
 ### Orders (`/orders`)
 
+- **Auth:** JWT on all routes below (with role checks where noted).
+
 - **POST `/orders`**
-  - **Auth**: JWT.
-  - Creates an order for the authenticated user using their `storeId`.
+  - Creates an order for the authenticated user (`customerId` from JWT) from **`items`** in the body (product ids and quantities). Updates stock from catalog.
+
+- **GET `/orders/all`**
+  - **Roles:** `SUPPORT` or `SUPER_ADMIN`.
+  - Returns orders across customers.
 
 - **GET `/orders/customer/:customerId`**
-  - Returns all orders for a given customer.
+  - **Must** match the authenticated user’s id (`customerId` === JWT `sub`); otherwise 403.
 
 - **GET `/orders/:id`**
-  - Returns a specific order.
+  - Single order if it belongs to the authenticated customer; otherwise 403.
 
 - **DELETE `/orders/:id`**
-  - **Auth**: JWT.
-  - Cancels the order and updates catalog stock using `storeId` from the JWT.
+  - Cancels a **pending** order owned by the authenticated user. Restores product stock for the order line items (transactional). HTTP 204.
+
+### Reviews (`/reviews`)
+
+- **POST `/reviews`**
+  - **Auth:** JWT.
+  - **Body:** `productId`, `title` (4–100 chars), `description` (30–1000 chars), `rating` (1–5), optional `reviewImage`.
+
+- **PATCH `/reviews/:id`**
+  - **Auth:** JWT. Owner can update their review.
+
+- **DELETE `/reviews/:id`**
+  - **Auth:** JWT. Owner can delete their review (HTTP 204).
+
+- **GET `/reviews/product/:productId`**
+  - Public (paginated). Query: `page`, `limit`.
+
+- **GET `/reviews/:id`**
+  - Public. Single review.
+
+- **POST `/reviews/:id/image`**
+  - **Auth:** JWT. `multipart/form-data` field **`file`**.
 
 ### Seed / Demo Data (`/seed`)
 
 - **POST `/seed`**
-  - **Roles**: `SUPER_ADMIN` only.
+  - **Auth:** JWT. **Roles:** `SUPER_ADMIN` only.
   - Creates a demo store called **"Prismart Demo Store"** (address in CDMX) and **25 furniture/home products** associated with it.
   - The store is assigned to the authenticated `SUPER_ADMIN` user.
   - **Idempotency**: if the demo store already exists, returns a `409 Conflict` error. Delete the store first to re-seed.
-  - **Product specs**: prices between $899–$3999 MXN, stock between 2–9 units, category `hogar`, SKUs that match each product name.
-  - **Response**:
+  - **Product specs**: prices between approx. $899–$3999 MXN, stock between 2–9 units, category `hogar`, SKUs aligned with product names.
+  - **Response** (201):
     ```json
     {
       "storeId": "...",
@@ -234,10 +297,10 @@ JWT payload examples:
 
 ## Quick dev testing notes
 
-- Use tools like **Insomnia** or **Postman**:
-  1. `POST /auth/register` → get a `CUSTOMER` `token`.
-  2. `POST /auth/promote` with the same `email` → get a `SALES_ADMIN` `token` with `storeId`.
-  3. With that token, try:
-     - `POST /stores` (create store if it does not exist yet).
-     - `POST /products` (create products for that store).
-     - Cart and orders flow using the same JWT (which contains `storeId`).
+- Use **Insomnia**, **Postman**, or **Swagger** at `/api/docs`.
+- Typical flow:
+  1. Ensure a `SUPER_ADMIN` exists (env bootstrap or your own seeding).
+  2. `POST /api/v1/auth/login` as `SUPER_ADMIN` → `token`.
+  3. `POST /api/v1/auth/promote` with that token and target `email` / `username` → `SALES_ADMIN` `token` with `storeId`.
+  4. With the sales-admin token: `POST /api/v1/stores` if needed, then `POST /api/v1/products`, image upload, discounts, etc.
+  5. As a customer: register/login, browse `GET /api/v1/products`, cart, checkout or `POST /api/v1/orders`, reviews.
