@@ -58,7 +58,7 @@ SUPER_ADMIN_USERNAME=superadmin
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `API_PORT` | No | `3000` | Port on which the HTTP server listens. |
-| `MONGO_URI` | **Yes** | `mongodb://localhost:27017/prismart` | MongoDB connection string. |
+| `MONGO_URI` | **Yes** | `mongodb://mongo:27017/prismart` | MongoDB connection string. |
 | `JWT_SECRET` | **Yes** | — | Secret key used to sign and verify JWTs. |
 | `JWT_EXPIRES_IN` | **Yes** | — | Token lifetime (e.g. `24h`, `7d`, `3600`). |
 | `CLOUDINARY_CLOUD_NAME` | **Yes** | — | Cloudinary cloud name for image uploads. |
